@@ -8,46 +8,46 @@ import { Ingredient } from './entities/ingredient.entity';
 @Injectable()
 export class IngredientsService {
   logger = new Logger(IngredientsService.name)
-  constructor(@InjectRepository(Ingredient) private readonly itemRepository: Repository<Ingredient>,
+  constructor(@InjectRepository(Ingredient) private readonly ingredientRepository: Repository<Ingredient>,
   ) {
 
   }
 
   async create(createIngredientDto: CreateIngredientDto) {
-    const entity = this.itemRepository.create(createIngredientDto)
-    const item = await this.itemRepository.save(entity).catch(() => {
-      throw new InternalServerErrorException('Failed to save item !')
+    const entity = this.ingredientRepository.create(createIngredientDto)
+    const ingredient = await this.ingredientRepository.save(entity).catch(() => {
+      throw new InternalServerErrorException('Failed to save ingredient !')
     });
 
-    return item
+    return ingredient
   }
 
   async findAll() {
-    const items = await this.itemRepository.find().catch(() => {
+    const ingredients = await this.ingredientRepository.find().catch(() => {
       throw new InternalServerErrorException('Failed to find all !')
     });
-    return items;
+    return ingredients;
   }
 
   async findOne(id: string) {
-    const item = await this.itemRepository.findOne(id).catch(() => {
-      throw new InternalServerErrorException(`Failed to find item id: ${id} !`)
+    const ingredient = await this.ingredientRepository.findOne(id).catch(() => {
+      throw new InternalServerErrorException(`Failed to find ingredient id: ${id} !`)
     });
-    return item
+    return ingredient
   }
 
   async update(id: string, updateIngredientDto: UpdateIngredientDto) {
-    const entity = this.itemRepository.create(updateIngredientDto);
+    const entity = this.ingredientRepository.create(updateIngredientDto);
     entity.id = id
-    const item = await this.itemRepository.save(updateIngredientDto).catch(() => {
-      throw new InternalServerErrorException(`Failed to update item id: ${id} !`)
+    const ingredient = await this.ingredientRepository.save(updateIngredientDto).catch(() => {
+      throw new InternalServerErrorException(`Failed to update ingredient id: ${id} !`)
     });
-    return item
+    return ingredient
   }
 
   async remove(id: string) {
-    await this.itemRepository.delete(id).catch(() => {
-      throw new InternalServerErrorException(`Failed to delete item id: ${id} !`)
+    await this.ingredientRepository.delete(id).catch(() => {
+      throw new InternalServerErrorException(`Failed to delete ingredient id: ${id} !`)
     });
     return { message: 'SUCCESS' }
   }

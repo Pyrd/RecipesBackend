@@ -1,26 +1,54 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
+import { Tag } from './entities/tag.entity';
 
 @Injectable()
 export class TagsService {
-  create(createTagDto: CreateTagDto) {
-    return 'This action adds a new tag';
+  logger = new Logger(TagsService.name)
+  constructor(@InjectRepository(Tag) private readonly tagRepository: Repository<Tag>,
+  ) {
+
   }
 
-  findAll() {
-    return `This action returns all tags`;
+  async create(createTagDto: CreateTagDto) {
+    const entity = this.tagRepository.create(createTagDto)
+    const tag = await this.tagRepository.save(entity).catch(() => {
+      throw new InternalServerErrorException('Failed to save tag !')
+    });
+
+    return tag
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} tag`;
+  async findAll() {
+    const tags = await this.tagRepository.find().catch(() => {
+      throw new InternalServerErrorException('Failed to find all !')
+    });
+    return tags;
   }
 
-  update(id: string, updateTagDto: UpdateTagDto) {
-    return `This action updates a #${id} tag`;
+  async findOne(id: string) {
+    const tag = await this.tagRepository.findOne(id).catch(() => {
+      throw new InternalServerErrorException(`Failed to find tag id: ${id} !`)
+    });
+    return tag
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} tag`;
+  async update(id: string, updateTagDto: UpdateTagDto) {
+    const entity = this.tagRepository.create(updateTagDto);
+    entity.id = id
+    const tag = await this.tagRepository.save(updateTagDto).catch(() => {
+      throw new InternalServerErrorException(`Failed to update tag id: ${id} !`)
+    });
+    return tag
+  }
+
+  async remove(id: string) {
+    await this.tagRepository.delete(id).catch(() => {
+      throw new InternalServerErrorException(`Failed to delete tag id: ${id} !`)
+    });
+    return { message: 'SUCCESS' }
   }
 }
