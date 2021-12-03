@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Receipe } from 'src/api/receipes/receipe/entities/receipe.entity';
+import { Recepie } from 'src/api/recepies/recepie/entities/recepie.entity';
 import { Role } from 'src/core/auth/role.enum';
 import {
   Column,
@@ -67,6 +67,6 @@ export class User {
   @Column({ default: false })
   disable: boolean;
 
-  @OneToMany(() => Receipe, r => r.author)
-  receipes: Receipe[]
+  @OneToMany(() => Recepie, r => r.author)
+  recepies: Recepie[]
 }

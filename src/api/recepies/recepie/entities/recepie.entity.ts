@@ -12,11 +12,11 @@ import {
 import { Image } from '../../../common/images/entities/image.entity';
 import { Instruction } from '../../instructions/entities/instruction.entity';
 import { Item } from '../../items/entities/item.entity';
-import { ReceipeStatus } from '../../shared/receipe-status.enum';
+import { RecepieStatus } from '../../shared/recepie-status.enum';
 import { Tag } from '../../tags/entities/tag.entity';
 
 @Entity()
-export class Receipe {
+export class Recepie {
     @ApiProperty()
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -51,7 +51,7 @@ export class Receipe {
     items: Item[];
 
     @ApiProperty()
-    @ManyToOne(() => User, u => u.receipes)
+    @ManyToOne(() => User, u => u.recepies)
     author: User;
 
     @ApiProperty()
@@ -74,5 +74,5 @@ export class Receipe {
     @Column({
         nullable: false,
     })
-    status: ReceipeStatus
+    status: RecepieStatus
 }

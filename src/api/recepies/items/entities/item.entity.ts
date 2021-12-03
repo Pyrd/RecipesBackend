@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Image } from '../../../common/images/entities/image.entity';
 import { ItemCategory } from '../../item-category/entities/item-category.entity';
+import { ItemTypes } from '../../shared/item-types.enum';
 
 @Entity()
 export class Item {
@@ -29,8 +30,10 @@ export class Item {
     description: string
 
     @ApiProperty()
-    @ManyToMany(() => ItemCategory)
-    category: ItemCategory
+    @Column({
+        nullable: false,
+    })
+    category: ItemTypes
 
     @ApiProperty()
     @ManyToMany(() => Image)

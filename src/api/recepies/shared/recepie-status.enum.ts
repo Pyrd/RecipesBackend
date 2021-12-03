@@ -1,4 +1,4 @@
-export enum ReceipeStatus {
+export enum RecepieStatus {
     PUBLIC = "PUBLIC",
     PRIVATE = "PRIVATE",
     DELETED = "DELETED",
