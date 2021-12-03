@@ -1,6 +1,0 @@
-- c'est du yarn
-- check le package.json pour les scripts
-- nest g resource api/<nom_du_module> est ton meilleur pote
-- core c'est les services pour faire fonctionner l'api, genre le logger
-- api c'est là où on met les services de foncier public
-- t'es bg
