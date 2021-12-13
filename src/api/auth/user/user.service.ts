@@ -7,9 +7,9 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { Role } from 'src/core/auth/role.enum';
 import { MailService } from 'src/core/mail/mail.service';
 import { Repository } from 'typeorm';
+import { Role } from '~/core/authentication/role.enum';
 import PostgresErrorCode from '~/core/database/postgresErrorCode.enum';
 import { ConfirmUserDTO } from './dto/confirm-user.dto';
 import { CreateUserDTO } from './dto/create-user.dto';

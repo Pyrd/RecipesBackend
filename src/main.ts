@@ -45,7 +45,7 @@ async function bootstrap() {
   app.enableCors();
 
   // if (configService.get('auth')) {
-  //     app.useGlobalGuards(new JwtAuthGuard());
+  //     app.useGlobalGuards(new JwtAuthenticationGuard());
   // }
 
   if (configService.get('swagger')) {

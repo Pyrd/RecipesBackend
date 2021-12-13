@@ -11,7 +11,7 @@
 // import { ApiTags } from '@nestjs/swagger';
 // import { AssignedTenant } from 'src/core/auth/assigned-tenant.guard';
 // import { GetUser } from 'src/core/auth/auth.decorator';
-// import { JwtAuthGuard } from 'src/core/auth/jwt-auth.guard';
+// import { JwtAuthenticationGuard } from 'src/core/auth/jwt-auth.guard';
 // import { Role } from 'src/core/auth/role.enum';
 // import { Roles } from 'src/core/auth/roles.decorator';
 // import { RolesGuard } from 'src/core/auth/roles.guard';
@@ -28,34 +28,34 @@
 //   constructor(private readonly tenantService: TenantService) { }
 
 //   @Post()
-//   @UseGuards(JwtAuthGuard, RolesGuard)
+//   @UseGuards(JwtAuthenticationGuard, RolesGuard)
 //   @Roles(Role.ADMIN)
 //   create(@Body() createTenantDto: CreateTenantDto): Promise<Tenant> {
 //     return this.tenantService.create(createTenantDto);
 //   }
 
 //   @Get()
-//   @UseGuards(JwtAuthGuard, RolesGuard)
+//   @UseGuards(JwtAuthenticationGuard, RolesGuard)
 //   @Roles(Role.ADMIN)
 //   findAll(): Promise<Tenant[]> {
 //     return this.tenantService.findAll();
 //   }
 
 //   @Get('/me')
-//   @UseGuards(JwtAuthGuard)
+//   @UseGuards(JwtAuthenticationGuard)
 //   getMe(@GetUser() user: User) {
 //     return user;
 //   }
 
 //   @Get(':id')
-//   @UseGuards(JwtAuthGuard, RolesGuard, AssignedTenant)
+//   @UseGuards(JwtAuthenticationGuard, RolesGuard, AssignedTenant)
 //   @Roles(Role.ADMIN, Role.TENANT_ADMIN, Role.USER)
 //   findOne(@Param('id') id: string): Promise<Tenant> {
 //     return this.tenantService.findOne(+id);
 //   }
 
 //   @Patch(':id')
-//   @UseGuards(JwtAuthGuard, RolesGuard)
+//   @UseGuards(JwtAuthenticationGuard, RolesGuard)
 //   @Roles(Role.ADMIN)
 //   update(
 //     @Param('id') id: string,

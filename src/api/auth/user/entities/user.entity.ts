@@ -1,16 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { Recepie } from 'src/api/recepies/recepie/entities/recepie.entity';
-import { Role } from 'src/core/auth/role.enum';
 import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Role } from '~/core/authentication/role.enum';
 
 @Entity()
 export class User {

@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
-import { Role } from 'src/core/auth/role.enum';
+import { Role } from '~/core/authentication/role.enum';
 
 export class UpdateUserRoleDTO {
   @IsNotEmpty()

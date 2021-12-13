@@ -9,11 +9,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { GetUser } from 'src/core/auth/auth.decorator';
-import { JwtAuthGuard } from 'src/core/auth/jwt-auth.guard';
-import { Role } from 'src/core/auth/role.enum';
-import { Roles } from 'src/core/auth/roles.decorator';
-import { RolesGuard } from 'src/core/auth/roles.guard';
+import { GetUser } from '~/core/authentication/auth.decorator';
+import JwtAuthenticationGuard from '~/core/authentication/jwt-authentication.guard';
+import { Role } from '~/core/authentication/role.enum';
+import { Roles } from '~/core/authentication/roles.decorator';
+import { RolesGuard } from '~/core/authentication/roles.guard';
 import { ConfirmUserDTO } from './dto/confirm-user.dto';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserRoleDTO } from './dto/update-user-role.dto';
@@ -42,7 +42,7 @@ export class UserController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthenticationGuard, RolesGuard)
   @Roles(Role.ADMIN)
   findAll() {
     return this.userService.findAll().then((usrs) => {
@@ -54,7 +54,7 @@ export class UserController {
   }
 
   @Get('/me')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthenticationGuard)
   getMe(@GetUser() user: User) {
     return user;
   }
@@ -66,7 +66,7 @@ export class UserController {
   // }
 
   // @Patch(':id/tenant')
-  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @UseGuards(JwtAuthenticationGuard, RolesGuard)
   // @Roles(Role.ADMIN, Role.TENANT_ADMIN)
   // setTenant(@GetUser() user: User, @Body() body: UpdateUserTenantDTO) {
   //   if (user.role == Role.TENANT_ADMIN && user.tenant.id != body.tenantId)
@@ -76,7 +76,7 @@ export class UserController {
   // }
 
   @Patch('role')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthenticationGuard, RolesGuard)
   @Roles(Role.ADMIN)
   setUserRole(@Body() body: UpdateUserRoleDTO) {
     return this.userService.setUserRole(body.userId, body.role);
@@ -89,20 +89,20 @@ export class UserController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthenticationGuard, RolesGuard)
   @Roles(Role.ADMIN)
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(id, updateUserDto);
   }
 
   @Delete('/me')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthenticationGuard)
   removeMe(@GetUser() user: User) {
     return this.userService.remove(user.id);
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthenticationGuard, RolesGuard)
   @Roles(Role.ADMIN)
   remove(@Param('id') id: string) {
     return this.userService.remove(id);
@@ -110,7 +110,7 @@ export class UserController {
 
   // Reset Password
   @Get('resetpassword')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthenticationGuard)
   resetPassword(@GetUser() user: User) {
     return this.userService.resetPassword(user);
   }
