@@ -50,7 +50,7 @@ async function bootstrap() {
 
   if (configService.get('swagger')) {
     const config = new DocumentBuilder()
-      .setTitle('FDL Backoffice API')
+      .setTitle('Recepies')
       .setVersion('0.1')
       .build();
 

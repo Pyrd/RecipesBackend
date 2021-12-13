@@ -1,10 +1,16 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Role } from 'src/core/auth/role.enum';
 import { MailService } from 'src/core/mail/mail.service';
 import { Repository } from 'typeorm';
+import PostgresErrorCode from '~/core/database/postgresErrorCode.enum';
 import { ConfirmUserDTO } from './dto/confirm-user.dto';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -16,7 +22,7 @@ export class UserService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly mailService: MailService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   // async create(createUserDto: CreateUserDto) {
   //     let { password, ...user } = createUserDto;
@@ -56,7 +62,6 @@ export class UserService {
     if (await this.userRepository.findOne({ email: createUserDTO.email }))
       throw new HttpException('Email already in use', HttpStatus.CONFLICT);
 
-
     const confirmationToken =
       Math.floor(Math.random() * (99999 - 10000) + 10000) + '-' + Date.now();
 
@@ -75,7 +80,10 @@ export class UserService {
       nUser.confirmationToken = null;
     }
 
-    const user = await this.userRepository.save(nUser).catch(() => {
+    const user = await this.userRepository.save(nUser).catch((error) => {
+      if (error?.code === PostgresErrorCode.UniqueViolation) {
+        throw new BadRequestException('User with that email already exists');
+      }
       throw new HttpException(
         'Failed to save user !',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -126,6 +134,12 @@ export class UserService {
     });
   }
 
+  findOneById(id: string): Promise<User> {
+    return this.userRepository.findOne({
+      id,
+    });
+  }
+
   update(id: string, updateUserDto: UpdateUserDto) {
     return this.userRepository.update(id, updateUserDto);
   }
@@ -140,7 +154,6 @@ export class UserService {
     });
   }
 
-
   resetPassword(user) {
     this.mailService.sendResetPasswordMail(user);
     return user;
@@ -149,6 +162,32 @@ export class UserService {
   async disableUser(id: string) {
     return this.userRepository.update(id, {
       disable: true,
+    });
+  }
+
+  async setCurrentRefreshToken(refreshToken: string, userId: string) {
+    const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await this.userRepository.update(userId, {
+      currentHashedRefreshToken,
+    });
+  }
+
+  async getUserIfRefreshTokenMatches(refreshToken: string, userId: string) {
+    const user = await this.findOneById(userId);
+
+    const isRefreshTokenMatching = await bcrypt.compare(
+      refreshToken,
+      user.currentHashedRefreshToken,
+    );
+
+    if (isRefreshTokenMatching) {
+      return user;
+    }
+  }
+
+  async removeRefreshToken(userId: string) {
+    return this.userRepository.update(userId, {
+      currentHashedRefreshToken: null,
     });
   }
 }

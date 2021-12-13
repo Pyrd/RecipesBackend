@@ -3,12 +3,9 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   Patch,
   Post,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -20,7 +17,6 @@ import { RolesGuard } from 'src/core/auth/roles.guard';
 import { ConfirmUserDTO } from './dto/confirm-user.dto';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserRoleDTO } from './dto/update-user-role.dto';
-import { UpdateUserTenantDTO } from './dto/update-user-tenant.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
@@ -28,7 +24,7 @@ import { UserService } from './user.service';
 @ApiTags('User')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @Post()
   createUser(@GetUser() user: User, @Body() createUserDTO: CreateUserDTO) {
