@@ -48,6 +48,7 @@ export class AuthenticationController {
   @Post('logout')
   @HttpCode(200)
   async logOut(@Req() request: RequestWithUser) {
+    console.log(request.user);
     await this.usersService.removeRefreshToken(request.user.id);
     request.res.setHeader(
       'Set-Cookie',

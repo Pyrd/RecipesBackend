@@ -17,14 +17,13 @@ export class AuthenticationService {
 
   public getCookieWithJwtAccessToken(userId: string) {
     const payload: TokenPayload = { userId };
-    console.log('jwwwt', this.configService.get('JWT_ACCESS_TOKEN_SECRET'));
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
       expiresIn: `${this.configService.get(
         'JWT_ACCESS_TOKEN_EXPIRATION_TIME',
       )}s`,
     });
-    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
+    return `access_token=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
       'JWT_ACCESS_TOKEN_EXPIRATION_TIME',
     )}`;
   }
@@ -37,7 +36,7 @@ export class AuthenticationService {
         'JWT_REFRESH_TOKEN_EXPIRATION_TIME',
       )}s`,
     });
-    const cookie = `Refresh=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
+    const cookie = `refresh_token=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
       'JWT_REFRESH_TOKEN_EXPIRATION_TIME',
     )}`;
     return {
@@ -48,8 +47,8 @@ export class AuthenticationService {
 
   public getCookiesForLogOut() {
     return [
-      'Authentication=; HttpOnly; Path=/; Max-Age=0',
-      'Refresh=; HttpOnly; Path=/; Max-Age=0',
+      'access_token=; HttpOnly; Path=/; Max-Age=0',
+      'refresh_token=; HttpOnly; Path=/; Max-Age=0',
     ];
   }
 

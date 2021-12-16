@@ -135,6 +135,7 @@ export class UserService {
   }
 
   findOneById(id: string): Promise<User> {
+    console.log(`FIND ONE ${id}`);
     return this.userRepository.findOne({
       id,
     });
@@ -173,6 +174,7 @@ export class UserService {
   }
 
   async getUserIfRefreshTokenMatches(refreshToken: string, userId: string) {
+    console.log(refreshToken, userId);
     const user = await this.findOneById(userId);
 
     const isRefreshTokenMatching = await bcrypt.compare(
