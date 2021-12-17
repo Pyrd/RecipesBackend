@@ -12,7 +12,6 @@ export default class JwtAuthenticationGuard extends AuthGuard('jwt') {
   }
 
   handleRequest(err, user, info) {
-    console.log(user, info);
     // if (process.env.ENABLE_AUTH === 'false') {
     //   return {
     //     firstname: 'Michael',

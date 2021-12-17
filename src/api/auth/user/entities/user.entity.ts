@@ -6,7 +6,7 @@ import {
   CreateDateColumn,
   Entity,
   OneToMany,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Role } from '~/core/authentication/role.enum';
@@ -14,8 +14,12 @@ import { Role } from '~/core/authentication/role.enum';
 @Entity()
 export class User {
   @ApiProperty()
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn()
   id: string;
+
+  @ApiProperty()
+  @Column()
+  displayname: string;
 
   @ApiProperty()
   @Column()

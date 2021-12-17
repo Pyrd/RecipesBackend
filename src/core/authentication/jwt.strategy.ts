@@ -15,12 +15,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
-          const cookies = request.headers.cookie.split(';');
+          const cookies = request.headers.cookie?.split(';');
           const token = cookies
-            .find((e) => e.trim().startsWith('access_token'))
-            .split('=');
-          console.log(typeof token);
-          console.log();
+            ?.find((e) => e.trim().startsWith('access_token'))
+            ?.split('=');
           return token && token.length > 1 ? token[1] : null;
         },
       ]),
@@ -29,7 +27,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: TokenPayload) {
-    console.log(`VALIDATE: ${payload}`);
     return this.userService.findOneById(payload.userId);
   }
 }

@@ -63,8 +63,8 @@ async function bootstrap() {
     Logger.log(`App is ready on port ${PORT}`, 'Server');
   } else {
     await app.init();
-    console.log('HttpsConfig:', httpsConfig);
-    console.log('process.env.KEY_PATH:', process.env.KEY_PATH);
+    // console.log('HttpsConfig:', httpsConfig);
+    // console.log('process.env.KEY_PATH:', process.env.KEY_PATH);
     const httpsOptions = {
       key: fs.readFileSync(
         `/certs/${httpsConfig.certPath}/privkey.pem`,

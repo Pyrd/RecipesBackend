@@ -36,7 +36,7 @@ export class AuthenticationController {
       this.authenticationService.getCookieWithJwtRefreshToken(user.id);
 
     await this.usersService.setCurrentRefreshToken(refreshToken, user.id);
-
+    await this.usersService.update(user.id, { lastLogin: new Date() });
     request.res.setHeader('Set-Cookie', [
       accessTokenCookie,
       refreshTokenCookie,
@@ -48,7 +48,6 @@ export class AuthenticationController {
   @Post('logout')
   @HttpCode(200)
   async logOut(@Req() request: RequestWithUser) {
-    console.log(request.user);
     await this.usersService.removeRefreshToken(request.user.id);
     request.res.setHeader(
       'Set-Cookie',

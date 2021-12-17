@@ -58,6 +58,17 @@ export class UserService {
       });
   }
 
+  makeid(length) {
+    let result = '';
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result.toUpperCase();
+  }
+
   async createUser(createUserDTO: CreateUserDTO) {
     if (await this.userRepository.findOne({ email: createUserDTO.email }))
       throw new HttpException('Email already in use', HttpStatus.CONFLICT);
@@ -70,6 +81,7 @@ export class UserService {
       lastLogin: new Date(),
       confirmationToken: confirmationToken,
       role: createUserDTO.role,
+      id: this.makeid(6),
     };
 
     const need_confirmation = this.configService.get('user_confirmation');
@@ -135,7 +147,6 @@ export class UserService {
   }
 
   findOneById(id: string): Promise<User> {
-    console.log(`FIND ONE ${id}`);
     return this.userRepository.findOne({
       id,
     });
@@ -174,7 +185,6 @@ export class UserService {
   }
 
   async getUserIfRefreshTokenMatches(refreshToken: string, userId: string) {
-    console.log(refreshToken, userId);
     const user = await this.findOneById(userId);
 
     const isRefreshTokenMatching = await bcrypt.compare(

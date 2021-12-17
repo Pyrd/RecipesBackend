@@ -59,6 +59,12 @@ export class UserController {
     return user;
   }
 
+  @Get(':id')
+  @UseGuards(JwtAuthenticationGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  findOne(@Param('id') id: string) {
+    return this.userService.findOneById(id);
+  }
   // @Patch("tenant")
   // setTenant() {
   //     //TODO: Implement function

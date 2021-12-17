@@ -31,8 +31,4 @@ export class CreateUserDTO {
 
   @IsEnum(Role)
   role: Role;
-
-  @IsBoolean()
-  @IsOptional()
-  fdlUser: boolean;
 }
