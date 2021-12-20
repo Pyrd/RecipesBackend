@@ -96,6 +96,12 @@ export class UserController {
     this.userService.disableUser(id);
   }
 
+  @Patch('undisable/:id')
+  @Roles(Role.ADMIN, Role.TENANT_ADMIN)
+  unDisableUser(@Param('id') id: string) {
+    this.userService.unDisableUser(id);
+  }
+
   @Patch(':id')
   @UseGuards(JwtAuthenticationGuard, RolesGuard)
   @Roles(Role.ADMIN)

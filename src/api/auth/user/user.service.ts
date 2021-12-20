@@ -275,6 +275,12 @@ export class UserService {
     });
   }
 
+  async unDisableUser(id: string) {
+    return this.userRepository.update(id, {
+      disable: false,
+    });
+  }
+
   async setCurrentRefreshToken(refreshToken: string, userId: string) {
     const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.userRepository.update(userId, {

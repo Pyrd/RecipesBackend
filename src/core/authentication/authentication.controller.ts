@@ -8,6 +8,7 @@ import {
   Get,
   ClassSerializerInterceptor,
   UseInterceptors,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import RegisterDto from './dto/register.dto';
@@ -30,6 +31,10 @@ export class AuthenticationController {
   @Post('login')
   async logIn(@Req() request: RequestWithUser) {
     const { user } = request;
+    if (user && user.disable) {
+      throw new UnauthorizedException('ERROR.USER_DISABLED');
+    }
+
     const accessTokenCookie =
       this.authenticationService.getCookieWithJwtAccessToken(user.id);
     const { cookie: refreshTokenCookie, token: refreshToken } =

@@ -12,7 +12,7 @@ export default class JwtAuthenticationGuard extends AuthGuard('jwt') {
   }
 
   handleRequest(err, user, info) {
-    if (process.env.ENABLE_AUTH === 'false') {
+    if (!user && process.env.ENABLE_AUTH === 'false') {
       return (
         user || {
           firstname: 'Michael',
@@ -25,9 +25,12 @@ export default class JwtAuthenticationGuard extends AuthGuard('jwt') {
         }
       );
     }
+    if (user && user.disable) {
+      throw new UnauthorizedException('ERROR.USER_DISABLED');
+    }
     // You can throw an exception based on either "info" or "err" arguments
     if (err || !user) {
-      throw err || new UnauthorizedException('User not found');
+      throw err || new UnauthorizedException('ERROR.USER_NOT_FOUND');
     }
     return user;
   }
