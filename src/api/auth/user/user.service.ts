@@ -143,7 +143,7 @@ export class UserService {
 
   async findAll(): Promise<User[]> {
     const users = await this.userRepository.find();
-    for (let u of users) {
+    for (const u of users) {
       u.passwordHash = undefined;
       u.confirmationToken = undefined;
       u.currentHashedRefreshToken = undefined;
@@ -159,14 +159,14 @@ export class UserService {
 
     return {
       ...user,
-      passwordHash: undefined,
+      // passwordHash: undefined,TODO: Breaking change: used in jwt guard. To fix !
       confirmationToken: undefined,
       currentHashedRefreshToken: undefined,
     };
   }
 
   async findOneById(id: string): Promise<User> {
-    const user = this.userRepository.findOne({
+    const user = await this.userRepository.findOne({
       id,
     });
 
@@ -182,9 +182,20 @@ export class UserService {
     if (updateUserDto.email) {
       updateUserDto.confirmed = false;
     }
-    await this.userRepository.update(id, updateUserDto);
+    console.log('id', id);
     const user = await this.findOneById(id);
-    await this.sendConfirmationEmail(user);
+    console.log('>', user);
+    console.log('>>', updateUserDto);
+
+    const nUser: User = {
+      ...this.userRepository.create({ ...user, ...updateUserDto }),
+    };
+    await this.userRepository.save(nUser);
+    // await this.userRepository.update(id, updateUserDto);
+    if (updateUserDto.email) {
+      await this.sendConfirmationEmail(user);
+    }
+
     return;
   }
 

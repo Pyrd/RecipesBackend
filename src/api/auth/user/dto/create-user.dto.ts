@@ -1,5 +1,6 @@
 import {
   IsBoolean,
+  IsDate,
   IsEmail,
   IsEnum,
   IsNumber,
@@ -19,7 +20,10 @@ export class CreateUserDTO {
   email: string;
 
   @IsString()
-  phone: string;
+  gender: string;
+
+  @IsString()
+  birth_date: string;
 
   @IsOptional()
   @IsString()

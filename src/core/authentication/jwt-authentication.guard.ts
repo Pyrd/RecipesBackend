@@ -12,17 +12,19 @@ export default class JwtAuthenticationGuard extends AuthGuard('jwt') {
   }
 
   handleRequest(err, user, info) {
-    // if (process.env.ENABLE_AUTH === 'false') {
-    //   return {
-    //     firstname: 'Michael',
-    //     lastname: 'Test',
-    //     email: 'dev@dev.com',
-    //     phone: '0101010101',
-    //     tenantId: 1,
-    //     tenant: 'MYTENANT',
-    //     role: 'ADMIN',
-    //   };
-    // }
+    if (process.env.ENABLE_AUTH === 'false') {
+      return (
+        user || {
+          firstname: 'Michael',
+          lastname: 'Test',
+          email: 'dev@dev.com',
+          phone: '0101010101',
+          tenantId: 1,
+          tenant: 'MYTENANT',
+          role: 'ADMIN',
+        }
+      );
+    }
     // You can throw an exception based on either "info" or "err" arguments
     if (err || !user) {
       throw err || new UnauthorizedException('User not found');

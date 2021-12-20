@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import RegisterDto from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -53,16 +58,15 @@ export class AuthenticationService {
   }
 
   public async getAuthenticatedUser(email: string, plainTextPassword: string) {
-    try {
-      const user = await this.usersService.findOne(email);
-      await this.verifyPassword(plainTextPassword, user.passwordHash);
-      return user;
-    } catch (error) {
+    const user = await this.usersService.findOne(email);
+    if (!user.confirmed) {
       throw new HttpException(
-        'Wrong credentials provided',
+        'ERROR.USER_NOT_CONFIRMED',
         HttpStatus.BAD_REQUEST,
       );
     }
+    await this.verifyPassword(plainTextPassword, user.passwordHash);
+    return user;
   }
 
   private async verifyPassword(
@@ -74,10 +78,7 @@ export class AuthenticationService {
       hashedPassword,
     );
     if (!isPasswordMatching) {
-      throw new HttpException(
-        'Wrong credentials provided',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('ERROR.BAD_CREDENTIALS', HttpStatus.BAD_REQUEST);
     }
   }
 }

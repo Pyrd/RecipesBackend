@@ -46,7 +46,11 @@ export class User {
 
   @ApiProperty()
   @Column()
-  phone: string;
+  gender: string;
+
+  @ApiProperty()
+  @Column({ nullable: true })
+  birth_date: string;
 
   @ApiProperty()
   @Column({
