@@ -124,8 +124,12 @@ export class UserController {
 
   @Post('sendconfirmationemail')
   resendEmailConfirmation(@Body('email') email: string) {
-    console.log(`ok ${email}`);
     return this.userService.resendConfirmationEmail(email);
+  }
+
+  @Post('confirm-email')
+  reconfirmEmail(@Body('token') email: string) {
+    return this.userService.confirmUserEmail(email);
   }
 
   @Get('data/me')

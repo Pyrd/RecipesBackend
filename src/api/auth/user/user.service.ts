@@ -3,10 +3,13 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import { NotFoundError } from 'rxjs';
 import { MailService } from 'src/core/mail/mail.service';
 import { Repository } from 'typeorm';
 import { Role } from '~/core/authentication/role.enum';
@@ -18,6 +21,7 @@ import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
+  logger = new Logger(UserService.name);
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly mailService: MailService,
@@ -122,6 +126,22 @@ export class UserService {
     };
   }
 
+  async confirmUserEmail(token: string) {
+    const user: User = await this.userRepository.findOne({
+      confirmationToken: token,
+    });
+
+    if (!user) {
+      throw new HttpException(
+        'Invalid verification token',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    user.confirmed = true;
+    user.confirmationToken = null;
+    this.userRepository.update(user.id, user);
+  }
+
   async confirmUser(confirmUserDTO: ConfirmUserDTO) {
     const user: User = await this.userRepository.findOne({
       confirmationToken: confirmUserDTO.token,
@@ -156,6 +176,9 @@ export class UserService {
     const user = await this.userRepository.findOne({
       email: email,
     });
+    if (user == undefined) {
+      throw new NotFoundException('User not found');
+    }
 
     return {
       ...user,
@@ -169,6 +192,9 @@ export class UserService {
     const user = await this.userRepository.findOne({
       id,
     });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
 
     return {
       ...user,
@@ -179,19 +205,15 @@ export class UserService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    if (updateUserDto.email) {
+    const user = await this.findOneById(id);
+    if (updateUserDto.email && updateUserDto.email != user.email) {
       updateUserDto.confirmed = false;
     }
-    console.log('id', id);
-    const user = await this.findOneById(id);
-    console.log('>', user);
-    console.log('>>', updateUserDto);
 
     const nUser: User = {
       ...this.userRepository.create({ ...user, ...updateUserDto }),
     };
     await this.userRepository.save(nUser);
-    // await this.userRepository.update(id, updateUserDto);
     if (updateUserDto.email) {
       await this.sendConfirmationEmail(user);
     }
@@ -220,7 +242,16 @@ export class UserService {
   }
 
   async resetPassword(email: string) {
-    let user = await this.findOne(email);
+    let user = await this.findOne(email).catch((err) => {
+      this.logger.warn(
+        `[resetPassword] failed to fetch user, email '${email}' !`,
+      );
+    });
+    if (!user) {
+      return;
+    } else if (!user.confirmed) {
+      throw new BadRequestException('ERROR.USER_NOT_CONFIRMED');
+    }
 
     user = await this.generateNewToken(user);
     await this.mailService.sendResetPasswordMail(user);
@@ -234,7 +265,7 @@ export class UserService {
 
   async sendConfirmationEmail(user: User) {
     user = await this.generateNewToken(user);
-    await this.mailService.sendUserConfirmation(user);
+    await this.mailService.sendUserConfirmation(user, false);
     return user;
   }
 

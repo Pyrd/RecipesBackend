@@ -10,10 +10,11 @@ export class MailService {
     private readonly configService: ConfigService,
   ) {}
 
-  async sendUserConfirmation(user: User) {
-    const url = `${this.configService.get('link.webapp')}/auth/confirm?token=${
-      user.confirmationToken
-    }`;
+  async sendUserConfirmation(user: User, isANewUser = true) {
+    const confirm = isANewUser ? 'confirm' : 'confirm-email';
+    const url = `${this.configService.get(
+      'link.webapp',
+    )}/auth/${confirm}?token=${user.confirmationToken}`;
 
     await this.mailerService.sendMail({
       to: user.email,
