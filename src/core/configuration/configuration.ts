@@ -25,8 +25,13 @@ export default () => ({
     password: process.env.DATABASE_PASSWORD || 'mysecretpassword',
     database: process.env.DATABASE_DATABASE || 'fdl-backend',
   },
-  mailjet: {
-    public: process.env.MJ_APIKEY_PUBLIC || '',
-    private: process.env.MJ_APIKEY_PRIVATE || '',
+  mail: {
+    host: process.env.MAIL_HOST,
+    pwd: process.env.MAIL_PASSWORD,
+    user: process.env.MAIL_USER,
+    from: process.env.MAIL_FROM,
+  },
+  link: {
+    webapp: process.env.link_webapp || 'http://localhost:3000',
   },
 });

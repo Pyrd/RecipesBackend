@@ -69,12 +69,17 @@ export class UserService {
     return result.toUpperCase();
   }
 
+  private getRandomToken() {
+    return (
+      Math.floor(Math.random() * (99999 - 10000) + 10000) + '-' + Date.now()
+    );
+  }
+
   async createUser(createUserDTO: CreateUserDTO) {
     if (await this.userRepository.findOne({ email: createUserDTO.email }))
       throw new HttpException('Email already in use', HttpStatus.CONFLICT);
 
-    const confirmationToken =
-      Math.floor(Math.random() * (99999 - 10000) + 10000) + '-' + Date.now();
+    const confirmationToken = this.getRandomToken();
 
     const nUser: Partial<User> = {
       ...createUserDTO,
@@ -103,7 +108,7 @@ export class UserService {
     });
 
     if (need_confirmation) {
-      await this.mailService.sendConfirmUser(user).catch(() => {
+      await this.mailService.sendUserConfirmation(user).catch(() => {
         throw new HttpException(
           'Failed to send confirmation email !',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -136,24 +141,51 @@ export class UserService {
     this.userRepository.update(user.id, user);
   }
 
-  findAll(): Promise<User[]> {
-    return this.userRepository.find();
+  async findAll(): Promise<User[]> {
+    const users = await this.userRepository.find();
+    for (let u of users) {
+      u.passwordHash = undefined;
+      u.confirmationToken = undefined;
+      u.currentHashedRefreshToken = undefined;
+    }
+
+    return users;
   }
 
-  findOne(email: string): Promise<User> {
-    return this.userRepository.findOne({
+  async findOne(email: string): Promise<User> {
+    const user = await this.userRepository.findOne({
       email: email,
     });
+
+    return {
+      ...user,
+      passwordHash: undefined,
+      confirmationToken: undefined,
+      currentHashedRefreshToken: undefined,
+    };
   }
 
-  findOneById(id: string): Promise<User> {
-    return this.userRepository.findOne({
+  async findOneById(id: string): Promise<User> {
+    const user = this.userRepository.findOne({
       id,
     });
+
+    return {
+      ...user,
+      passwordHash: undefined,
+      confirmationToken: undefined,
+      currentHashedRefreshToken: undefined,
+    };
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return this.userRepository.update(id, updateUserDto);
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    if (updateUserDto.email) {
+      updateUserDto.confirmed = false;
+    }
+    await this.userRepository.update(id, updateUserDto);
+    const user = await this.findOneById(id);
+    await this.sendConfirmationEmail(user);
+    return;
   }
 
   remove(id: string) {
@@ -166,8 +198,32 @@ export class UserService {
     });
   }
 
-  resetPassword(user) {
-    this.mailService.sendResetPasswordMail(user);
+  async generateNewToken(user: User) {
+    const confirmationToken = this.getRandomToken();
+
+    user.confirmationToken = confirmationToken;
+    await this.update(user.id, {
+      confirmationToken: confirmationToken,
+    });
+    return user;
+  }
+
+  async resetPassword(email: string) {
+    let user = await this.findOne(email);
+
+    user = await this.generateNewToken(user);
+    await this.mailService.sendResetPasswordMail(user);
+    return user;
+  }
+
+  async resendConfirmationEmail(email: string) {
+    const user = await this.findOne(email);
+    return this.sendConfirmationEmail(user);
+  }
+
+  async sendConfirmationEmail(user: User) {
+    user = await this.generateNewToken(user);
+    await this.mailService.sendUserConfirmation(user);
     return user;
   }
 
@@ -201,5 +257,11 @@ export class UserService {
     return this.userRepository.update(userId, {
       currentHashedRefreshToken: null,
     });
+  }
+
+  async test() {
+    const resp = await this.findAll();
+    console.log(resp[0]);
+    this.mailService.sendUserConfirmation(resp[0]);
   }
 }

@@ -3,9 +3,11 @@ import {
   Controller,
   Delete,
   Get,
+  NotImplementedException,
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -115,9 +117,28 @@ export class UserController {
   }
 
   // Reset Password
-  @Get('resetpassword')
+  @Post('resetpassword')
+  resetPassword(@Body('email') email: string) {
+    return this.userService.resetPassword(email);
+  }
+
+  @Post('sendconfirmationemail')
+  resendEmailConfirmation(@Body('email') email: string) {
+    console.log(`ok ${email}`);
+    return this.userService.resendConfirmationEmail(email);
+  }
+
+  @Get('data/me')
   @UseGuards(JwtAuthenticationGuard)
-  resetPassword(@GetUser() user: User) {
-    return this.userService.resetPassword(user);
+  async getOwnUserData() {
+    // TODO: implement
+    throw new NotImplementedException();
+  }
+
+  @Get('data/:id')
+  @UseGuards(JwtAuthenticationGuard, RolesGuard)
+  async getSpecificUserData(@Query('id') id: string) {
+    // TODO: implement
+    throw new NotImplementedException();
   }
 }
