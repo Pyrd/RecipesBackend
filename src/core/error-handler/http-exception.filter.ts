@@ -23,6 +23,7 @@ export class HttpExceptionsFilter implements ExceptionFilter {
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
+    console.error(exception);
     Logger.error(
       `${new Date().toISOString()} - [URL: ${
         request.url
