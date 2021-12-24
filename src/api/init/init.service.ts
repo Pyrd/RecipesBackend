@@ -42,7 +42,7 @@ export class InitService {
           category: {
             id: e.categorie_code,
           },
-          points: e.points,
+          points: +e.points,
           ingredient_url: e.ingredient_url,
         };
       }),

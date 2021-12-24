@@ -20,11 +20,6 @@ export class IngredientsController {
     return this.ingredientsService.create(createIngredientDto);
   }
 
-  @Post('search')
-  search(@Body('query') query: string) {
-    return this.ingredientsService.search(query);
-  }
-
   @Get()
   findAll() {
     return this.ingredientsService.findAll();

@@ -6,7 +6,7 @@ export class CreateItemDto {
   id: string;
   label: string;
   code: string;
-  points: string;
+  points: number;
   ingredient_url: string;
   description: string;
   category: CreateItemCategoryDto;

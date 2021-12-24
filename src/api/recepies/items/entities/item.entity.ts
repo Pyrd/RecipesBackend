@@ -45,12 +45,12 @@ export class Item {
   // category: ItemCategory;
 
   @ApiProperty()
-  @ManyToOne(() => ItemCategory, (u) => u.items)
+  @ManyToOne(() => ItemCategory, (u) => u.items, { eager: true })
   category: ItemCategory;
 
   @ApiProperty()
   @Column()
-  points: string;
+  points: number;
   @ApiProperty()
   @Column()
   ingredient_url: string;

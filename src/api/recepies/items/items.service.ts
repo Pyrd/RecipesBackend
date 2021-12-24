@@ -38,6 +38,24 @@ export class ItemsService {
     return item;
   }
 
+  async getStats() {
+    return {
+      count: await this.itemRepository.count(),
+    };
+  }
+
+  async search(query: string) {
+    const sanitized = query.toLowerCase();
+    console.log(query, sanitized);
+    const result = await this.itemRepository
+      .createQueryBuilder('item')
+      .where('item.code like :query', { query: `%${sanitized}%` })
+      .orderBy('item.points', 'DESC')
+      .limit(8)
+      .getMany();
+    return result;
+  }
+
   async findAll() {
     const items = await this.itemRepository.find().catch(() => {
       throw new InternalServerErrorException('Failed to find all !');
