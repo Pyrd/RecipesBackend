@@ -1,40 +1,45 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    JoinTable,
-    ManyToMany, PrimaryGeneratedColumn,
-    UpdateDateColumn
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Image } from '../../../common/images/entities/image.entity';
+import { Item } from '../../items/entities/item.entity';
 
 @Entity()
 export class ItemCategory {
-    @ApiProperty()
-    @PrimaryGeneratedColumn('rowid')
-    id: string;
+  @ApiProperty()
+  @PrimaryColumn()
+  id: string;
 
-    @ApiProperty()
-    @Column({
-        nullable: false,
-    })
-    label: string
+  @ApiProperty()
+  @Column({
+    nullable: false,
+  })
+  label: string;
 
-    @ApiProperty()
-    @Column({
-        nullable: false,
-    })
-    description: string
+  @ApiProperty()
+  @Column({ nullable: true })
+  description: string;
 
-    @ApiProperty()
-    @ManyToMany(() => Image)
-    @JoinTable()
-    images: Image[]
+  @OneToMany(() => Item, (r) => r.category)
+  items: Item[];
 
-    @CreateDateColumn()
-    created: Date;
+  @ApiProperty()
+  @ManyToMany(() => Image)
+  @JoinTable()
+  images: Image[];
 
-    @UpdateDateColumn()
-    updated: Date;
+  @CreateDateColumn()
+  created: Date;
+
+  @UpdateDateColumn()
+  updated: Date;
 }

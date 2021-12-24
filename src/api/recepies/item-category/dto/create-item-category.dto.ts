@@ -1,5 +1,7 @@
 export class CreateItemCategoryDto {
-    label: string;
-    description: string;
-    duration: string;
+  id: string;
+  label?: string;
+  code?: string;
+  description?: string;
+  duration?: string;
 }

@@ -1,11 +1,13 @@
-import { ItemTypes } from "../../shared/item-types.enum";
-
+import { CreateItemCategoryDto } from '../../item-category/dto/create-item-category.dto';
+import { ItemCategory } from '../../item-category/entities/item-category.entity';
+import { ItemTypes } from '../../shared/item-types.enum';
 
 export class CreateItemDto {
-
-    label: string;
-    description: string;
-    category: ItemTypes
-
-
+  id: string;
+  label: string;
+  code: string;
+  points: string;
+  ingredient_url: string;
+  description: string;
+  category: CreateItemCategoryDto;
 }
