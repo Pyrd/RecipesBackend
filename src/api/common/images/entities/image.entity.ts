@@ -17,12 +17,8 @@ export class Image {
   @Column({
     nullable: false,
   })
-  size: number;
-  @ApiProperty()
-  @Column({
-    nullable: false,
-  })
   mimetype: string;
+
   @ApiProperty()
   @Column({
     nullable: false,

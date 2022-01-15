@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinTable,
   ManyToMany,
   ManyToOne,
@@ -11,51 +12,43 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Image } from '../../../common/images/entities/image.entity';
-import { ItemCategory } from '../../item-category/entities/item-category.entity';
 import { ItemTypes } from '../../shared/item-types.enum';
 
 @Entity()
 export class Item {
   @ApiProperty()
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn('rowid')
   id: string;
 
   @ApiProperty()
   @Column({
-    nullable: false,
+    nullable: true,
+  })
+  label_en: string;
+  @ApiProperty()
+  @Column({
+    nullable: true,
+  })
+  label_fr: string;
+
+  @Column({
+    nullable: true,
   })
   code: string;
 
   @ApiProperty()
+  @Index()
   @Column({
     nullable: false,
   })
-  label: string;
+  letter: string;
 
-  @ApiProperty()
-  @Column({
-    nullable: false,
-  })
-  description: string;
-
-  // @ApiProperty()
-  // @Column({
-  //   nullable: false,
-  // })
-  // category: ItemCategory;
-
-  @ApiProperty()
-  @ManyToOne(() => ItemCategory, (u) => u.items, { eager: true })
-  category: ItemCategory;
-
-  @ApiProperty()
-  @Column()
-  points: number;
   @ApiProperty()
   @Column()
   ingredient_url: string;
+
   @ApiProperty()
-  @ManyToMany(() => Image)
+  @ManyToMany(() => Image, { cascade: true, eager: true })
   @JoinTable()
   images: Image[];
 

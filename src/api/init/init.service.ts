@@ -1,79 +1,99 @@
 import { HttpService, Injectable } from '@nestjs/common';
-import { IngredientsService } from '../recepies/ingredients/ingredients.service';
-import { CreateItemCategoryDto } from '../recepies/item-category/dto/create-item-category.dto';
-import { ItemCategoryService } from '../recepies/item-category/item-category.service';
 import { CreateItemDto } from '../recepies/items/dto/create-item.dto';
-import { Item } from '../recepies/items/entities/item.entity';
 import { ItemsService } from '../recepies/items/items.service';
-import { OpenFoodFacts_IngredientsResp } from './interfaces/openfoodfacts.interface';
-import { IRaw_Data_Ingredients } from './interfaces/rawdata-ingredient.interface';
+import { IRawIngredient } from './interfaces/ingredient-scrapper.interface';
 
 @Injectable()
 export class InitService {
   constructor(
     private readonly httpService: HttpService,
     private readonly itemService: ItemsService,
-    private readonly itemCategoryService: ItemCategoryService,
   ) {}
 
   async initIngredients(file: Express.Multer.File) {
     const buffer = file.buffer;
     const string = buffer.toString('utf-8');
-    const json = this.tsvJSON(string);
-    const dtos: {
-      items: CreateItemDto[];
-      categories: CreateItemCategoryDto[];
-    } = this.processJsonIngredients(json);
-    await this.itemCategoryService.batchCreate(dtos.categories);
-    await this.itemService.batchCreate(dtos.items);
+    const json: IRawIngredient[] = JSON.parse(string);
+    const dtos: CreateItemDto[] = [];
+    for (const letter of json) {
+      for (const ingr of letter.ingredients) {
+        const exts = ingr.image.split('.');
+        dtos.push({
+          label_fr: ingr.title,
+          ingredient_url: ingr.link,
+          images: [
+            {
+              mimetype: exts.pop(),
+              url: ingr.image,
+            },
+          ],
+          letter: letter.letter,
+        });
+      }
+    }
+
+    await this.itemService.batchCreate(dtos);
     return json;
   }
 
-  processJsonIngredients(json: Array<IRaw_Data_Ingredients>): any {
-    const categories = new Set();
-    return {
-      items: json.map((e) => {
-        categories.add({ id: e.categorie_code, label: e.categorie });
-        return {
-          id: e.ingredient_id,
-          code: e.ingredient_code,
-          label: e.ingredient,
-          description: '',
-          category: {
-            id: e.categorie_code,
-          },
-          points: +e.points,
-          ingredient_url: e.ingredient_url,
-        };
-      }),
-      categories,
-    };
-  }
+  // async initIngredients(file: Express.Multer.File) {
+  //   const buffer = file.buffer;
+  //   const string = buffer.toString('utf-8');
+  //   const json = this.tsvJSON(string);
+  //   const dtos: {
+  //     items: CreateItemDto[];
+  //     categories: CreateItemCategoryDto[];
+  //   } = this.processJsonIngredients(json);
+  //   await this.itemCategoryService.batchCreate(dtos.categories);
+  //   await this.itemService.batchCreate(dtos.items);
+  //   return json;
+  // }
 
-  private tsvJSON(tsv: string) {
-    const lines = tsv.split('\n');
+  // processJsonIngredients(json: Array<IRaw_Data_Ingredients>): any {
+  //   const categories = new Set();
+  //   return {
+  //     items: json.map((e) => {
+  //       categories.add({ id: e.categorie_code, label: e.categorie });
+  //       return {
+  //         id: e.ingredient_id,
+  //         code: e.ingredient_code,
+  //         label: e.ingredient,
+  //         description: '',
+  //         category: {
+  //           id: e.categorie_code,
+  //         },
+  //         points: +e.points,
+  //         ingredient_url: e.ingredient_url,
+  //       };
+  //     }),
+  //     categories,
+  //   };
+  // }
 
-    const result = [];
+  // private tsvJSON(tsv: string) {
+  //   const lines = tsv.split('\n');
 
-    const headers = lines[0]
-      .split('\t')
-      .map((e: string) => e.replace('\r', ''));
+  //   const result = [];
 
-    for (let i = 1; i < lines.length; i++) {
-      const obj = {};
-      const currentline = lines[i]
-        .split('\t')
-        .map((e: string) => e.replace('\r', ''));
+  //   const headers = lines[0]
+  //     .split('\t')
+  //     .map((e: string) => e.replace('\r', ''));
 
-      for (let j = 0; j < headers.length; j++) {
-        obj[headers[j]] = currentline[j];
-      }
+  //   for (let i = 1; i < lines.length; i++) {
+  //     const obj = {};
+  //     const currentline = lines[i]
+  //       .split('\t')
+  //       .map((e: string) => e.replace('\r', ''));
 
-      result.push(obj);
-    }
+  //     for (let j = 0; j < headers.length; j++) {
+  //       obj[headers[j]] = currentline[j];
+  //     }
 
-    return result;
-  }
+  //     result.push(obj);
+  //   }
+
+  //   return result;
+  // }
 
   // OLD OPENFOODFACTS DATA SOURCE
   //   async initIngredients(file: Express.Multer.File) {

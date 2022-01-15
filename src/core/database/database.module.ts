@@ -8,7 +8,6 @@ import { Item } from '~/api/recepies/items/entities/item.entity';
 import { Recepie } from '~/api/recepies/recepie/entities/recepie.entity';
 import { Tag } from '~/api/recepies/tags/entities/tag.entity';
 import { Image } from '~/api/common/images/entities/image.entity';
-import { ItemCategory } from '~/api/recepies/item-category/entities/item-category.entity';
 
 @Module({
   imports: [
@@ -22,16 +21,7 @@ import { ItemCategory } from '~/api/recepies/item-category/entities/item-categor
           database: dbConf.database,
           password: dbConf.password,
           port: dbConf.port,
-          entities: [
-            User,
-            Recepie,
-            Ingredient,
-            Item,
-            ItemCategory,
-            Instruction,
-            Tag,
-            Image,
-          ],
+          entities: [User, Recepie, Ingredient, Item, Instruction, Tag, Image],
           synchronize: true,
           dropSchema: false,
           logging: false,

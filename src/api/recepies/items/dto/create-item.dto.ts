@@ -1,13 +1,9 @@
-import { CreateItemCategoryDto } from '../../item-category/dto/create-item-category.dto';
-import { ItemCategory } from '../../item-category/entities/item-category.entity';
-import { ItemTypes } from '../../shared/item-types.enum';
+import { CreateImageDto } from '~/api/common/images/dto/create-image.dto';
 
 export class CreateItemDto {
-  id: string;
-  label: string;
-  code: string;
-  points: number;
+  label_fr?: string;
+  label_en?: string;
+  letter: string;
   ingredient_url: string;
-  description: string;
-  category: CreateItemCategoryDto;
+  images: CreateImageDto[];
 }

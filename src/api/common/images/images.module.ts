@@ -6,6 +6,7 @@ import { ImagesService } from './images.service';
 @Module({
   controllers: [],
   imports: [TypeOrmModule.forFeature([Image])],
-  providers: [ImagesService]
+  providers: [ImagesService],
+  exports: [ImagesService],
 })
-export class ImagesModule { }
+export class ImagesModule {}

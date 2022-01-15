@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ImagesService } from '~/api/common/images/images.service';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { Item } from './entities/item.entity';
@@ -14,15 +15,19 @@ export class ItemsService {
   logger = new Logger(ItemsService.name);
   constructor(
     @InjectRepository(Item) private readonly itemRepository: Repository<Item>,
+    private readonly imageService: ImagesService,
   ) {}
 
   async batchCreate(ingredients: Array<CreateItemDto>) {
     // const promises = [];
     for (const ingredient of ingredients) {
       // promises.push();
-      console.log(ingredient.id, ingredient.label);
-      console.log(JSON.stringify(ingredient, null, 2));
-      await this.create(ingredient);
+      // const img = await this.imageService.createEntity(ingredient.image);
+      // const entity = this.itemRepository.create(ingredient);
+      // entity.i
+      const entity = await this.create(ingredient);
+      console.log(JSON.stringify(entity, null, 2));
+      // ingredient.image = { id: img.id };
     }
     return { message: 'SUCCESS' };
     // return Promise.all(promises);
@@ -30,6 +35,7 @@ export class ItemsService {
 
   async create(createItemDto: CreateItemDto) {
     const entity = this.itemRepository.create(createItemDto);
+    entity.code = entity.label_fr.toLocaleLowerCase('fr');
     const item = await this.itemRepository.save(entity).catch((err) => {
       console.error(err);
       throw new InternalServerErrorException('Failed to save item !');
@@ -49,11 +55,19 @@ export class ItemsService {
     console.log(query, sanitized);
     const result = await this.itemRepository
       .createQueryBuilder('item')
-      .where('item.code like :query', { query: `%${sanitized}%` })
-      .orderBy('item.points', 'DESC')
+      .where('item.code like :query', { query: `${sanitized}%` })
       .limit(8)
       .getMany();
-    return result;
+
+    return result.sort((a, b) => {
+      if (a.code.length - query.length > b.code.length - query.length) {
+        return 1;
+      } else if (a.code.length - query.length < b.code.length - query.length) {
+        return -1;
+      } else {
+        return 0;
+      }
+    });
   }
 
   async findAll() {
