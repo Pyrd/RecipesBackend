@@ -52,7 +52,6 @@ export class ItemsService {
 
   async search(query: string) {
     const sanitized = query.toLowerCase();
-    console.log(query, sanitized);
     const result = await this.itemRepository
       .createQueryBuilder('item')
       .where('item.code like :query', { query: `${sanitized}%` })
