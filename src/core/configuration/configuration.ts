@@ -33,6 +33,6 @@ export default () => ({
     from: process.env.MAIL_FROM,
   },
   link: {
-    webapp: process.env.link_webapp || 'http://localhost:3000',
+    webapp: process.env.WEBAPP_BASEURL || 'http://localhost:3000',
   },
 });
