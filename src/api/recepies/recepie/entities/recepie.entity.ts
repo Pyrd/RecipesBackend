@@ -16,6 +16,7 @@ import { Instruction } from '../../instructions/entities/instruction.entity';
 import { Item } from '../../items/entities/item.entity';
 import { RecepieStatus } from '../../shared/recepie-status.enum';
 import { Tag } from '../../tags/entities/tag.entity';
+import { Metadata } from '../dto/metadata.dto';
 
 @Entity()
 export class Recepie {
@@ -39,17 +40,32 @@ export class Recepie {
   @Column({
     nullable: false,
   })
-  duration: string;
+  duration_label: string;
 
   @ApiProperty()
-  @ManyToMany(() => Instruction)
-  @JoinTable()
+  @Column({
+    nullable: false,
+  })
+  duration_unit: string;
+
+  @ApiProperty()
+  @Column({
+    type: 'jsonb',
+    nullable: false,
+  })
   instructions: Instruction[];
 
   @ApiProperty()
   @ManyToMany(() => Item)
   @JoinTable()
   items: Item[];
+
+  @ApiProperty()
+  @Column({
+    type: 'jsonb',
+    nullable: false,
+  })
+  metadata: Metadata[];
 
   @ApiProperty()
   @ManyToOne(() => User, (u) => u.recepies)

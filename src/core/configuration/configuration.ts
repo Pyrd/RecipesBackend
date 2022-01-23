@@ -1,5 +1,5 @@
 export default () => ({
-  port: parseInt(process.env.PORT, 10) || 8080,
+  port: parseInt(process.env.PORT, 10) || 80,
   auth: process.env.ENABLE_AUTH === 'true',
   roles: process.env.ENABLE_ROLE == 'true' || false,
   user_confirmation: process.env.ENABLE_USER_CONFIRMATION == 'true' || false,

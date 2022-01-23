@@ -6,12 +6,6 @@ import { TagsModule } from './tags/tags.module';
 import { IngredientsModule } from './ingredients/ingredients.module';
 
 @Module({
-  imports: [
-    ItemsModule,
-    RecepieModule,
-    InstructionsModule,
-    TagsModule,
-    IngredientsModule,
-  ],
+  imports: [ItemsModule, RecepieModule, TagsModule, IngredientsModule],
 })
 export class RecepiesModule {}

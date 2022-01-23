@@ -177,7 +177,7 @@ export class UserService {
       email: email,
     });
     if (user == undefined) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('ERROR.USER_NOT_FOUND');
     }
 
     return {
@@ -193,7 +193,7 @@ export class UserService {
       id,
     });
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('ERROR.USER_NOT_FOUND');
     }
 
     return {

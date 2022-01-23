@@ -55,6 +55,7 @@ export class ItemsService {
     const result = await this.itemRepository
       .createQueryBuilder('item')
       .where('item.code like :query', { query: `${sanitized}%` })
+      .leftJoinAndSelect('item.images', 'images')
       .limit(8)
       .getMany();
 

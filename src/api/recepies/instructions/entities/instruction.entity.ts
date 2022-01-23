@@ -13,15 +13,9 @@ import { Item } from '../../items/entities/item.entity';
 
 @Entity()
 export class Instruction {
-  @ApiProperty()
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @ApiProperty()
-  @Column({
-    nullable: false,
-  })
-  title: string;
+  // @ApiProperty()
+  // @PrimaryGeneratedColumn('uuid')
+  // id: string;
 
   @ApiProperty()
   @Column({
@@ -29,25 +23,8 @@ export class Instruction {
   })
   description: string;
 
-  @ApiProperty()
-  @Column({
-    nullable: false,
-  })
-  duration: string;
-
-  @ApiProperty()
-  @ManyToMany(() => Item)
-  @JoinTable()
-  items: Item[];
-
-  @ApiProperty()
-  @ManyToMany(() => Image)
-  @JoinTable()
-  images: Image[];
-
-  @CreateDateColumn()
-  created: Date;
-
-  @UpdateDateColumn()
-  updated: Date;
+  // @ApiProperty()
+  // @ManyToMany(() => Image)
+  // @JoinTable()
+  // images: Image[];
 }

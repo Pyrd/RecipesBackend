@@ -21,7 +21,7 @@ import { Image } from '~/api/common/images/entities/image.entity';
           database: dbConf.database,
           password: dbConf.password,
           port: dbConf.port,
-          entities: [User, Recepie, Ingredient, Item, Instruction, Tag, Image],
+          entities: [User, Recepie, Ingredient, Item, Tag, Image],
           synchronize: true,
           dropSchema: false,
           logging: false,

@@ -31,6 +31,10 @@ export class Ingredient {
   })
   unit: UnitTypes;
 
+  @ApiProperty()
+  @Column()
+  complement: string;
+
   @CreateDateColumn()
   created: Date;
 
