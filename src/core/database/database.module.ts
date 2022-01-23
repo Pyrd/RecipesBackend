@@ -28,12 +28,14 @@ import { Image } from '~/api/common/images/entities/image.entity';
           // ssl: {
           //   ca: process.env.SSL_CERT,
           // },
-          // ssl: false,
-          // extra: {
-          //   ssl: {
-          //     rejectUnauthorized: false,
-          //   },
-          // },
+          ssl: dbConf.ssl,
+          extra: dbConf.ssl
+            ? {
+                ssl: {
+                  rejectUnauthorized: false,
+                },
+              }
+            : undefined,
         };
       },
       inject: [ConfigService],

@@ -23,7 +23,8 @@ export default () => ({
     port: parseInt(process.env.DATABASE_PORT, 10) || 5432,
     username: process.env.DATABASE_USERNAME || 'postgres',
     password: process.env.DATABASE_PASSWORD || 'mysecretpassword',
-    database: process.env.DATABASE_DATABASE || 'fdl-backend',
+    database: process.env.DATABASE_DATABASE || 'postgres',
+    ssl: process.env.DATABASE_SSL == 'true' || false,
   },
   mail: {
     host: process.env.MAIL_HOST,
