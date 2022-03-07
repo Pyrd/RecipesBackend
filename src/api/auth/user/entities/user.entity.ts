@@ -1,21 +1,25 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Receipe } from 'src/api/receipes/receipe/entities/receipe.entity';
-import { Role } from 'src/core/auth/role.enum';
+import { Exclude } from 'class-transformer';
+import { Recepie } from 'src/api/recepies/recepie/entities/recepie.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
   OneToMany,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Role } from '~/core/authentication/role.enum';
 
 @Entity()
 export class User {
   @ApiProperty()
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn()
   id: string;
+
+  @ApiProperty()
+  @Column()
+  displayname: string;
 
   @ApiProperty()
   @Column()
@@ -31,13 +35,22 @@ export class User {
 
   @ApiProperty()
   @Column({ nullable: true })
+  @Exclude()
   passwordHash: string;
+
+  @Column({
+    nullable: true,
+  })
+  @Exclude()
+  public currentHashedRefreshToken?: string;
 
   @ApiProperty()
   @Column()
-  phone: string;
+  gender: string;
 
-
+  @ApiProperty()
+  @Column({ nullable: true })
+  birth_date: string;
 
   @ApiProperty()
   @Column({
@@ -67,6 +80,6 @@ export class User {
   @Column({ default: false })
   disable: boolean;
 
-  @OneToMany(() => Receipe, r => r.author)
-  receipes: Receipe[]
+  @OneToMany(() => Recepie, (r) => r.author)
+  recepies: Recepie[];
 }

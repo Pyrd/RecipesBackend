@@ -1,12 +1,13 @@
 import {
   IsBoolean,
+  IsDate,
   IsEmail,
   IsEnum,
   IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
-import { Role } from 'src/core/auth/role.enum';
+import { Role } from '~/core/authentication/role.enum';
 
 export class CreateUserDTO {
   @IsString()
@@ -19,7 +20,10 @@ export class CreateUserDTO {
   email: string;
 
   @IsString()
-  phone: string;
+  gender: string;
+
+  @IsString()
+  birth_date: string;
 
   @IsOptional()
   @IsString()
@@ -31,8 +35,4 @@ export class CreateUserDTO {
 
   @IsEnum(Role)
   role: Role;
-
-  @IsBoolean()
-  @IsOptional()
-  fdlUser: boolean;
 }

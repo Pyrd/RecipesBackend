@@ -1,0 +1,54 @@
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Create<YourStuff>Dto } from './dto/create-<yourstuff>.dto';
+import { Update<YourStuff>Dto } from './dto/update-<yourstuff>.dto';
+import { <YourStuff> } from './entities/<yourstuff>.entity';
+
+@Injectable()
+export class <YourStuff>sService {
+  logger = new Logger(<YourStuff>sService.name)
+  constructor(@InjectRepository(<YourStuff>) private readonly <yourstuff>Repository: Repository<<YourStuff>>,
+  ) {
+
+  }
+
+  async create(create<YourStuff>Dto: Create<YourStuff>Dto) {
+    const entity = this.<yourstuff>Repository.create(create<YourStuff>Dto)
+    const <yourstuff> = await this.<yourstuff>Repository.save(entity).catch(() => {
+      throw new InternalServerErrorException('Failed to save <yourstuff> !')
+    });
+
+    return <yourstuff>
+  }
+
+  async findAll() {
+    const <yourstuff>s = await this.<yourstuff>Repository.find().catch(() => {
+      throw new InternalServerErrorException('Failed to find all !')
+    });
+    return <yourstuff>s;
+  }
+
+  async findOne(id: string) {
+    const <yourstuff> = await this.<yourstuff>Repository.findOne(id).catch(() => {
+      throw new InternalServerErrorException(`Failed to find <yourstuff> id: ${id} !`)
+    });
+    return <yourstuff>
+  }
+
+  async update(id: string, update<YourStuff>Dto: Update<YourStuff>Dto) {
+    const entity = this.<yourstuff>Repository.create(update<YourStuff>Dto);
+    entity.id = id
+    const <yourstuff> = await this.<yourstuff>Repository.save(update<YourStuff>Dto).catch(() => {
+      throw new InternalServerErrorException(`Failed to update <yourstuff> id: ${id} !`)
+    });
+    return <yourstuff>
+  }
+
+  async remove(id: string) {
+    await this.<yourstuff>Repository.delete(id).catch(() => {
+      throw new InternalServerErrorException(`Failed to delete <yourstuff> id: ${id} !`)
+    });
+    return { message: 'SUCCESS' }
+  }
+}

@@ -1,56 +1,49 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { MailerService } from '@nestjs-modules/mailer';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as mailjet from 'node-mailjet';
-import { User } from 'src/api/auth/user/entities/user.entity';
-
-// const mailjet = require('node-mailjet');
+import { User } from '~/api/auth/user/entities/user.entity';
 
 @Injectable()
 export class MailService {
-  constructor(private configService: ConfigService) { }
+  constructor(
+    private readonly mailerService: MailerService,
+    private readonly configService: ConfigService,
+  ) {}
 
-  sendConfirmUser(user: User): Promise<any> {
-    const mailjetConfig = this.configService.get('mailjet');
-    const frontendUrl = this.configService.get('frontendUrl');
+  async sendUserConfirmation(user: User, isANewUser = true) {
+    const confirm = isANewUser ? 'confirm' : 'confirm-email';
+    const url = `${this.configService.get(
+      'link.webapp',
+    )}/auth/${confirm}?token=${user.confirmationToken}`;
 
-    if (!mailjetConfig || !frontendUrl) {
-      return new Promise<any>((resolve, reject) => {
-        resolve(user);
-      });
-    }
-    const mailer = mailjet.connect(mailjetConfig.public, mailjetConfig.private);
-
-    if (!mailer || !mailjet)
-      throw new HttpException(
-        'Cannot initialize mailjet',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-
-    const url = `${frontendUrl}/auth/confirm?token=${user.confirmationToken}`;
-
-    return mailer.post('send', { version: 'v3.1' }).request({
-      Messages: [
-        {
-          From: {
-            Email: 'contact@contact.com',
-            Name: 'Contact',
-          },
-          To: [
-            {
-              Email: user.email,
-              Name: `${user.firstname} ${user.lastname}`,
-            },
-          ],
-          Subject: 'Contact',
-          TextPart: 'Confirm your account',
-          HTMLPart: `Your account has just been created, please confirm it and create your password by going <a href="${url}">here</a`,
-          CustomID: 'AppGettingStartedTest',
-        },
-      ],
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Welcome to Recepies ! Confirm your Email',
+      template: './user-confirm',
+      context: {
+        name: user.displayname,
+        url,
+      },
     });
   }
 
   async sendResetPasswordMail(user: User) {
-    // TODO [IMPLEMENT]
+    try {
+      const url = `${this.configService.get(
+        'link.webapp',
+      )}/auth/reset-password?token=${user.confirmationToken}`;
+
+      await this.mailerService.sendMail({
+        to: user.email,
+        subject: 'Recepies - Reset your password',
+        template: './user-reset-password',
+        context: {
+          name: user.displayname,
+          url,
+        },
+      });
+    } catch (err) {
+      throw new InternalServerErrorException('Failed to send email');
+    }
   }
 }
