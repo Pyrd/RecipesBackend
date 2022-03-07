@@ -4,7 +4,10 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import e from 'express';
 import { Repository } from 'typeorm';
+import { id_generator } from '~/utils/generate-id';
+import { RecepieStatus } from '../shared/recepie-status.enum';
 import { CreateRecepieDto } from './dto/create-recepie.dto';
 import { UpdateRecepieDto } from './dto/update-recepie.dto';
 import { Recepie } from './entities/recepie.entity';
@@ -19,7 +22,10 @@ export class RecepieService {
 
   async create(createRecepieDto: CreateRecepieDto) {
     const entity = this.recepieRepository.create(createRecepieDto);
-    const recepie = await this.recepieRepository.save(entity).catch(() => {
+    entity.status = RecepieStatus.TO_BE_APPROVED;
+    entity.id = id_generator(10);
+    const recepie = await this.recepieRepository.save(entity).catch((err) => {
+      this.logger.error(err);
       throw new InternalServerErrorException('Failed to save recepie !');
     });
 

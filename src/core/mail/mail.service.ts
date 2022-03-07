@@ -19,7 +19,7 @@ export class MailService {
     await this.mailerService.sendMail({
       to: user.email,
       subject: 'Welcome to Recepies ! Confirm your Email',
-      template: './templates/user-confirm',
+      template: 'user-confirm',
       context: {
         name: user.displayname,
         url,
@@ -36,7 +36,7 @@ export class MailService {
       await this.mailerService.sendMail({
         to: user.email,
         subject: 'Recepies - Reset your password',
-        template: './templates/user-reset-password',
+        template: 'user-reset-password',
         context: {
           name: user.displayname,
           url,

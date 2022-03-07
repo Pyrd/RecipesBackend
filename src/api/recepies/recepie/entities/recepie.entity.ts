@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { userInfo } from 'os';
 import { User } from 'src/api/auth/user/entities/user.entity';
 import {
   Column,
@@ -8,27 +7,25 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Image } from '../../../common/images/entities/image.entity';
-import { Instruction } from '../../instructions/entities/instruction.entity';
-import { Item } from '../../items/entities/item.entity';
+import { RecepieAccess } from '../../shared/recepie-access.enum';
 import { RecepieStatus } from '../../shared/recepie-status.enum';
-import { Tag } from '../../tags/entities/tag.entity';
-import { Metadata } from '../dto/metadata.dto';
+import { Tags } from '../../shared/tag.enum';
 
 @Entity()
 export class Recepie {
   @ApiProperty()
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn()
   id: string;
 
   @ApiProperty()
   @Column({
     nullable: false,
   })
-  title: string;
+  name: string;
 
   @ApiProperty()
   @Column({
@@ -40,41 +37,69 @@ export class Recepie {
   @Column({
     nullable: false,
   })
-  duration_label: string;
+  person_count: number;
 
   @ApiProperty()
   @Column({
     nullable: false,
   })
-  duration_unit: string;
+  person_count_unit: string;
+
+  @ApiProperty()
+  @Column({
+    nullable: false,
+  })
+  difficulty: number;
+
+  @ApiProperty()
+  @Column({
+    nullable: false,
+  })
+  cost: number;
+
+  @ApiProperty()
+  @Column({
+    nullable: true,
+  })
+  total_duration: number;
+
+  @ApiProperty()
+  @Column({
+    type: 'jsonb',
+    nullable: true,
+  })
+  duration: {
+    estimated_prepare_time: number;
+    estimated_cook_time: number;
+    estimated_rest_time: number;
+  };
+
+  @ApiProperty()
+  @Column({
+    type: 'simple-array',
+    nullable: false,
+  })
+  instructions: string[];
 
   @ApiProperty()
   @Column({
     type: 'jsonb',
     nullable: false,
   })
-  instructions: Instruction[];
-
-  @ApiProperty()
-  @ManyToMany(() => Item)
-  @JoinTable()
-  items: Item[];
-
-  @ApiProperty()
-  @Column({
-    type: 'jsonb',
-    nullable: false,
-  })
-  metadata: Metadata[];
+  items: Array<{
+    item_id: number;
+    count: number;
+    unit: string;
+    complement: string;
+  }>;
 
   @ApiProperty()
   @ManyToOne(() => User, (u) => u.recepies)
   author: User;
 
   @ApiProperty()
-  @ManyToMany(() => Tag)
-  @JoinTable()
-  tags: Tag[];
+  @Column({ type: 'simple-array', nullable: true })
+  tags: Tags[];
 
   @ApiProperty()
   @ManyToMany(() => Image)
@@ -92,4 +117,9 @@ export class Recepie {
     nullable: false,
   })
   status: RecepieStatus;
+  @ApiProperty()
+  @Column({
+    nullable: false,
+  })
+  access: RecepieAccess;
 }

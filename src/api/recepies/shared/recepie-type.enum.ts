@@ -1,0 +1,11 @@
+export enum RecepieType {
+  ENTRY = 'ENTRY',
+  MAIN_DISH = 'MAIN_DISH',
+  DESSERT = 'DESSERT',
+  SIDE_DISH = 'SIDE_DISH',
+  APPETIZER = 'APPETIZER',
+  SAUCE = 'SAUCE',
+  DRINK = 'DRINK',
+  SWEET = 'SWEET',
+  MISCS = 'MISCS',
+}
