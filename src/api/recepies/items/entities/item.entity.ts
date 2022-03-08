@@ -18,7 +18,7 @@ import { ItemTypes } from '../../shared/item-types.enum';
 export class Item {
   @ApiProperty()
   @PrimaryGeneratedColumn('rowid')
-  id: string;
+  id: number;
 
   @ApiProperty()
   @Column({

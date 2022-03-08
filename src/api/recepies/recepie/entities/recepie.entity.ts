@@ -12,7 +12,9 @@ import {
 } from 'typeorm';
 import { Image } from '../../../common/images/entities/image.entity';
 import { RecepieAccess } from '../../shared/recepie-access.enum';
+import { RecepieCookType } from '../../shared/recepie-cook-type.enum';
 import { RecepieStatus } from '../../shared/recepie-status.enum';
+import { RecepieType } from '../../shared/recepie-type.enum';
 import { Tags } from '../../shared/tag.enum';
 
 @Entity()
@@ -56,6 +58,17 @@ export class Recepie {
     nullable: false,
   })
   cost: number;
+  @ApiProperty()
+  @Column({
+    nullable: true,
+  })
+  type: RecepieType;
+
+  @ApiProperty()
+  @Column({
+    nullable: true,
+  })
+  cook_type: RecepieCookType;
 
   @ApiProperty()
   @Column({
@@ -95,6 +108,7 @@ export class Recepie {
 
   @ApiProperty()
   @ManyToOne(() => User, (u) => u.recepies)
+  @JoinTable()
   author: User;
 
   @ApiProperty()

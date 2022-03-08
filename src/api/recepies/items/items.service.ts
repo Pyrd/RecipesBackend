@@ -77,14 +77,14 @@ export class ItemsService {
     return items;
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     const item = await this.itemRepository.findOne(id).catch(() => {
       throw new InternalServerErrorException(`Failed to find item id: ${id} !`);
     });
     return item;
   }
 
-  async update(id: string, updateItemDto: UpdateItemDto) {
+  async update(id: number, updateItemDto: UpdateItemDto) {
     const entity = this.itemRepository.create(updateItemDto);
     entity.id = id;
     const item = await this.itemRepository.save(updateItemDto).catch(() => {
@@ -95,7 +95,7 @@ export class ItemsService {
     return item;
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     await this.itemRepository.delete(id).catch(() => {
       throw new InternalServerErrorException(
         `Failed to delete item id: ${id} !`,

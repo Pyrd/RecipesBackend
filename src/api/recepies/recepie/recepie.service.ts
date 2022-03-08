@@ -4,9 +4,9 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import e from 'express';
 import { Repository } from 'typeorm';
 import { id_generator } from '~/utils/generate-id';
+import { ItemsService } from '../items/items.service';
 import { RecepieStatus } from '../shared/recepie-status.enum';
 import { CreateRecepieDto } from './dto/create-recepie.dto';
 import { UpdateRecepieDto } from './dto/update-recepie.dto';
@@ -18,6 +18,7 @@ export class RecepieService {
   constructor(
     @InjectRepository(Recepie)
     private readonly recepieRepository: Repository<Recepie>,
+    private readonly itemsService: ItemsService,
   ) {}
 
   async create(createRecepieDto: CreateRecepieDto) {
@@ -33,9 +34,11 @@ export class RecepieService {
   }
 
   async findAll() {
-    const recepies = await this.recepieRepository.find().catch(() => {
-      throw new InternalServerErrorException('Failed to find all !');
-    });
+    const recepies = await this.recepieRepository
+      .find({ relations: ['author'] })
+      .catch(() => {
+        throw new InternalServerErrorException('Failed to find all !');
+      });
     return recepies;
   }
 
@@ -59,6 +62,24 @@ export class RecepieService {
         );
       });
     return recepie;
+  }
+
+  async findItemsOfOne(id: string) {
+    const recepie = await this.findOne(id);
+    const promises = [];
+    for (const item of recepie.items) {
+      const prom = new Promise(async (resolve, reject) => {
+        const resp = await this.itemsService.findOne(item.item_id);
+        resolve({
+          ...item,
+          item: resp,
+        });
+      });
+      // const promise = this.itemsService.findOne(item.item_id);
+      promises.push(prom);
+    }
+    const items = await Promise.all(promises);
+    return items;
   }
 
   async remove(id: string) {
