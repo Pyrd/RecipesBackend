@@ -23,7 +23,11 @@ export class RecepieService {
 
   async create(createRecepieDto: CreateRecepieDto) {
     const entity = this.recepieRepository.create(createRecepieDto);
-    entity.status = RecepieStatus.TO_BE_APPROVED;
+    if (entity.access == 0) {
+      entity.status = RecepieStatus.TO_BE_APPROVED;
+    } else {
+      entity.status = RecepieStatus.ACTIVE;
+    }
     entity.id = id_generator(10);
     const recepie = await this.recepieRepository.save(entity).catch((err) => {
       this.logger.error(err);
