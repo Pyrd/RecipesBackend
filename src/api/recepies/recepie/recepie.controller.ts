@@ -24,11 +24,7 @@ export class RecepieController {
 
   @Post()
   @UseGuards(JwtAuthenticationGuard)
-  create(
-    @Body() createRecepieDto: CreateRecepieDto,
-    @GetUser() user: User,
-    @Req() request,
-  ) {
+  create(@Body() createRecepieDto: CreateRecepieDto, @GetUser() user: User) {
     createRecepieDto.author = user;
 
     return this.recepieService.create(createRecepieDto);
@@ -37,6 +33,11 @@ export class RecepieController {
   @Get()
   findAll() {
     return this.recepieService.findAll();
+  }
+
+  @Get('explore')
+  async getExploreRecepie() {
+    return this.recepieService.generateExploreRecepie();
   }
 
   @Get(':id')

@@ -94,4 +94,29 @@ export class RecepieService {
     });
     return { message: 'SUCCESS' };
   }
+
+  // private generateShowcase() {}
+
+  async generateExploreRecepie() {
+    const resp = {
+      showcase: [],
+    };
+
+    resp.showcase = await this.recepieRepository.find({
+      select: [
+        'id',
+        'name',
+        'description',
+        'person_count',
+        'person_count_unit',
+        'cost',
+        'difficulty',
+        'total_duration',
+        'tags',
+      ],
+      where: { access: 0 },
+    });
+    console.log(resp.showcase);
+    return resp;
+  }
 }
