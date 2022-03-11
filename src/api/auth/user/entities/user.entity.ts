@@ -75,6 +75,7 @@ export class User {
   confirmed: boolean;
 
   @Column({ nullable: true, unique: true })
+  @Exclude()
   confirmationToken: string;
 
   @Column({ default: false })

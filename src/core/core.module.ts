@@ -1,5 +1,5 @@
-import { Logger, Module } from '@nestjs/common';
-import { APP_FILTER } from '@nestjs/core';
+import { ClassSerializerInterceptor, Logger, Module } from '@nestjs/common';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { DatabaseModule } from './database/database.module';
 import { HttpExceptionsFilter } from './error-handler/http-exception.filter';
@@ -12,6 +12,10 @@ import { MailModule } from './mail/mail.module';
     {
       provide: APP_FILTER,
       useClass: HttpExceptionsFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClassSerializerInterceptor,
     },
   ],
 })

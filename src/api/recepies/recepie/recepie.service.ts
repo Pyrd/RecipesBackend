@@ -1,12 +1,14 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { id_generator } from '~/utils/generate-id';
 import { ItemsService } from '../items/items.service';
+import { Paginate, PaginateQuery } from '../shared/paginate.interface';
 import { RecepieStatus } from '../shared/recepie-status.enum';
 import { CreateRecepieDto } from './dto/create-recepie.dto';
 import { UpdateRecepieDto } from './dto/update-recepie.dto';
@@ -37,13 +39,48 @@ export class RecepieService {
     return recepie;
   }
 
-  async findAll() {
+  async importRecepiesFromJSON(file: Express.Multer.File) {
+    console.log(file);
+    if (file.mimetype != 'application/json') {
+      throw new BadRequestException('Bad file format');
+    }
+    const json = JSON.parse(file.buffer.toString());
+    const promises = [];
+    for (const elem of json) {
+      const recepie = this.recepieRepository.create(elem);
+      promises.push(this.recepieRepository.save(recepie));
+    }
+    await Promise.all(promises);
+    return { message: 'SUCCESS' };
+  }
+
+  async exportAll() {
     const recepies = await this.recepieRepository
       .find({ relations: ['author'] })
       .catch(() => {
         throw new InternalServerErrorException('Failed to find all !');
       });
     return recepies;
+  }
+
+  async findAll(query: PaginateQuery): Promise<Paginate<Recepie>> {
+    const take = query.take || 10;
+    const skip = query.skip || 0;
+    const keyword = query.keyword || '';
+
+    const [result, total] = await this.recepieRepository.findAndCount({
+      where: { name: Like('%' + keyword + '%') },
+      relations: ['author'],
+
+      order: { name: 'DESC' },
+      take: take,
+      skip: skip,
+    });
+
+    return {
+      data: result,
+      count: total,
+    };
   }
 
   async findOne(id: string) {

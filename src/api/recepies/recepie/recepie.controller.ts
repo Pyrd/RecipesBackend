@@ -10,6 +10,10 @@ import {
   Query,
   Req,
   UseGuards,
+  ClassSerializerInterceptor,
+  UseInterceptors,
+  Res,
+  UploadedFile,
 } from '@nestjs/common';
 import { RecepieService } from './recepie.service';
 import { CreateRecepieDto } from './dto/create-recepie.dto';
@@ -17,6 +21,10 @@ import { UpdateRecepieDto } from './dto/update-recepie.dto';
 import { User } from '~/api/auth/user/entities/user.entity';
 import { GetUser } from '~/core/authentication/auth.decorator';
 import JwtAuthenticationGuard from '~/core/authentication/jwt-authentication.guard';
+import { createReadStream } from 'fs';
+import { join } from 'path';
+import { Readable } from 'typeorm/platform/PlatformTools';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('recepie')
 export class RecepieController {
@@ -29,10 +37,39 @@ export class RecepieController {
 
     return this.recepieService.create(createRecepieDto);
   }
-
   @Get()
-  findAll() {
-    return this.recepieService.findAll();
+  findAll(
+    @Query('skip') skip: number,
+    @Query('take') take: number,
+    @Query('keyword') keyword: string,
+  ) {
+    return this.recepieService.findAll({
+      skip,
+      take,
+      keyword,
+    });
+  }
+
+  @Post('import')
+  @UseInterceptors(FileInterceptor('file'))
+  initIngredients(@UploadedFile() file: Express.Multer.File) {
+    // console.log(file);
+    return this.recepieService.importRecepiesFromJSON(file);
+  }
+
+  @Get('export')
+  async exportAll(@Res() res) {
+    const resp = await this.recepieService.exportAll();
+    const time = new Date().getTime();
+    res.header(
+      'Content-Disposition',
+      `attachment; filename="export_recepies-${time}.json"`,
+    );
+
+    const json = JSON.stringify(resp);
+    const buffer = Buffer.from(json);
+    const file = Readable.from(buffer);
+    file.pipe(res);
   }
 
   @Get('explore')
