@@ -8,8 +8,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as bcrypt from 'bcrypt';
-import { NotFoundError } from 'rxjs';
+import * as bcrypt from 'bcryptjs';
 import { MailService } from 'src/core/mail/mail.service';
 import { Repository } from 'typeorm';
 import { Role } from '~/core/authentication/role.enum';
