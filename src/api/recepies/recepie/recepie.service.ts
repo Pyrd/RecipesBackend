@@ -3,6 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
@@ -84,11 +85,15 @@ export class RecepieService {
   }
 
   async findOne(id: string) {
-    const recepie = await this.recepieRepository.findOne(id).catch(() => {
+    const recepie = await this.recepieRepository.findOne(id).catch((err) => {
+      this.logger.error(err);
       throw new InternalServerErrorException(
         `Failed to find recepie id: ${id} !`,
       );
     });
+    if (!recepie) {
+      throw new NotFoundException();
+    }
     return recepie;
   }
 
@@ -105,8 +110,7 @@ export class RecepieService {
     return recepie;
   }
 
-  async findItemsOfOne(id: string) {
-    const recepie = await this.findOne(id);
+  async findItemsOfOne(recepie) {
     const promises = [];
     for (const item of recepie.items) {
       const prom = new Promise(async (resolve, reject) => {

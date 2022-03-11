@@ -14,6 +14,7 @@ import {
   UseInterceptors,
   Res,
   UploadedFile,
+  NotFoundException,
 } from '@nestjs/common';
 import { RecepieService } from './recepie.service';
 import { CreateRecepieDto } from './dto/create-recepie.dto';
@@ -80,11 +81,11 @@ export class RecepieController {
   @Get(':id')
   async findOne(@Param('id') id: string, @Query('addItems') val = false) {
     if (val) {
-      const [recepie, items] = await Promise.all([
-        this.recepieService.findOne(id),
-        this.recepieService.findItemsOfOne(id),
-      ]);
-      recepie.items = items;
+      const recepie = await this.recepieService.findOne(id);
+      if (!recepie) {
+        throw new NotFoundException();
+      }
+      recepie.items = await this.recepieService.findItemsOfOne(recepie);
       return recepie;
     } else {
       return this.recepieService.findOne(id);
