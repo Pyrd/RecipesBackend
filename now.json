@@ -1,0 +1,20 @@
+{
+    "version": 2,
+    "name": "recepies-backend",
+    "github": {
+        "enabled": false
+    },
+    "scope": "pyrd",
+    "builds": [
+        {
+            "src": "dist/main.js",
+            "use": "@now/node"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "dist/main.js"
+        }
+    ]
+}
