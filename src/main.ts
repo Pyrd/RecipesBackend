@@ -1,4 +1,8 @@
-import { Logger, ValidationPipe } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  Logger,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';

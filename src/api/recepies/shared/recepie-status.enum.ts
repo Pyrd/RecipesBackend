@@ -1,6 +1,5 @@
 export enum RecepieStatus {
-    PUBLIC = "PUBLIC",
-    PRIVATE = "PRIVATE",
-    DELETED = "DELETED",
-    TO_BE_APPROVED = "TO_BE_APPROVED"
+  DELETED = 'DELETED',
+  TO_BE_APPROVED = 'TO_BE_APPROVED',
+  ACTIVE = 'ACTIVE',
 }
