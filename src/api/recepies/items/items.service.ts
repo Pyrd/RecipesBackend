@@ -19,18 +19,20 @@ export class ItemsService {
   ) {}
 
   async batchCreate(ingredients: Array<CreateItemDto>) {
-    // const promises = [];
+    const promises = [];
+    console.time('ok');
     for (const ingredient of ingredients) {
-      // promises.push();
+      // const entity = await this.itemRepository.create(ingredient);
+      // const entity = await this.itemRepository.create(ingredient);
+      promises.push(this.create(ingredient));
       // const img = await this.imageService.createEntity(ingredient.image);
-      // const entity = this.itemRepository.create(ingredient);
       // entity.i
-      const entity = await this.create(ingredient);
-      console.log(JSON.stringify(entity, null, 2));
-      // ingredient.image = { id: img.id };
     }
+    console.log('length', ingredients.length);
+    Promise.all(promises);
+    console.timeEnd('ok');
+
     return { message: 'SUCCESS' };
-    // return Promise.all(promises);
   }
 
   async create(createItemDto: CreateItemDto) {
