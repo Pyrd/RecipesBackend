@@ -1,10 +1,11 @@
-import { HttpService, Injectable } from '@nestjs/common';
+import { HttpService, Injectable, Logger } from '@nestjs/common';
 import { CreateItemDto } from '../recepies/items/dto/create-item.dto';
 import { ItemsService } from '../recepies/items/items.service';
 import { IRawIngredient } from './interfaces/ingredient-scrapper.interface';
 
 @Injectable()
 export class InitService {
+  logger = new Logger(InitService.name);
   constructor(
     private readonly httpService: HttpService,
     private readonly itemService: ItemsService,
@@ -31,6 +32,7 @@ export class InitService {
         });
       }
     }
+    this.logger.log(`Importing ${dtos.length} ingredients`);
 
     await this.itemService.batchCreate(dtos);
     return json;

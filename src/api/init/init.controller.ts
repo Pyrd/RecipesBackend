@@ -14,7 +14,9 @@ export class InitController {
   @Post('ingredients')
   @UseInterceptors(FileInterceptor('file'))
   initIngredients(@UploadedFile() file: Express.Multer.File) {
-    // console.log(file);
-    return this.initService.initIngredients(file);
+    // console.log(file);``
+    this.initService.initIngredients(file);
+
+    return { message: 'IMPORTING' };
   }
 }
