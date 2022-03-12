@@ -107,7 +107,7 @@ export class Recepie {
   }>;
 
   @ApiProperty()
-  @ManyToOne(() => User, (u) => u.recepies)
+  @ManyToOne(() => User, (u) => u.recepies, { nullable: true })
   @JoinTable()
   author: User;
 

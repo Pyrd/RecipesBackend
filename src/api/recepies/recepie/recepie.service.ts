@@ -49,9 +49,13 @@ export class RecepieService {
     const promises = [];
     for (const elem of json) {
       const recepie = this.recepieRepository.create(elem);
-      promises.push(this.recepieRepository.save(recepie));
+      console.log('>>>', JSON.stringify(recepie, null, 2));
+
+      promises.push(await this.recepieRepository.save(recepie));
     }
-    await Promise.all(promises);
+    // const resp = await Promise.all(promises);
+    // console.log(JSON.stringify(resp, null, 2));
+
     return { message: 'SUCCESS' };
   }
 
