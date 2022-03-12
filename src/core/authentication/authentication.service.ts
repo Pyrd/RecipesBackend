@@ -5,7 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import RegisterDto from './dto/register.dto';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import TokenPayload from './tokenPayload.interface';
@@ -73,6 +73,7 @@ export class AuthenticationService {
     plainTextPassword: string,
     hashedPassword: string,
   ) {
+    console.log(plainTextPassword, hashedPassword);
     const isPasswordMatching = await bcrypt.compare(
       plainTextPassword,
       hashedPassword,
