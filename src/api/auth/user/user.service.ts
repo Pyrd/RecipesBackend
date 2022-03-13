@@ -90,16 +90,19 @@ export class UserService {
 
     const fuser = await auth().createUser({
       email: nUser.email,
-      emailVerified: false,
+      emailVerified: true,
       password: createUserDTO.password,
       displayName: nUser.displayname,
       disabled: false,
     });
 
+    nUser.firebaseUid = fuser.uid;
+
     const user = await this.userRepository.save(nUser).catch((error) => {
       if (error?.code === PostgresErrorCode.UniqueViolation) {
         throw new BadRequestException('User with that email already exists');
       }
+      this.logger.error(error);
       throw new HttpException(
         'Failed to save user !',
         HttpStatus.INTERNAL_SERVER_ERROR,
