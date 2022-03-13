@@ -9,13 +9,17 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Role } from '~/core/authentication/role.enum';
+import { Role } from '~/core/auth/role.enum';
 
 @Entity()
 export class User {
   @ApiProperty()
   @PrimaryColumn()
   id: string;
+
+  @ApiProperty()
+  @Column()
+  firebaseUid: string;
 
   @ApiProperty()
   @Column()
@@ -32,17 +36,6 @@ export class User {
   @ApiProperty()
   @Column({ unique: true })
   email: string;
-
-  @ApiProperty()
-  @Column({ nullable: true })
-  @Exclude()
-  passwordHash: string;
-
-  @Column({
-    nullable: true,
-  })
-  @Exclude()
-  public currentHashedRefreshToken?: string;
 
   @ApiProperty()
   @Column()

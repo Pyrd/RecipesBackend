@@ -1,38 +1,34 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  Logger,
+  Get,
+  NotFoundException,
+  Param,
+  Patch,
+  Post,
   Query,
-  Req,
-  UseGuards,
-  ClassSerializerInterceptor,
-  UseInterceptors,
   Res,
   UploadedFile,
-  NotFoundException,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { RecepieService } from './recepie.service';
+import { AuthGuard } from '~/core/auth/auth.guard';
+
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Readable } from 'typeorm/platform/PlatformTools';
+import { User } from '~/api/auth/user/entities/user.entity';
+import { GetUser } from '~/core/auth/auth.decorator';
 import { CreateRecepieDto } from './dto/create-recepie.dto';
 import { UpdateRecepieDto } from './dto/update-recepie.dto';
-import { User } from '~/api/auth/user/entities/user.entity';
-import { GetUser } from '~/core/authentication/auth.decorator';
-import JwtAuthenticationGuard from '~/core/authentication/jwt-authentication.guard';
-import { createReadStream } from 'fs';
-import { join } from 'path';
-import { Readable } from 'typeorm/platform/PlatformTools';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { RecepieService } from './recepie.service';
 
 @Controller('recepie')
 export class RecepieController {
   constructor(private readonly recepieService: RecepieService) {}
 
   @Post()
-  @UseGuards(JwtAuthenticationGuard)
+  @UseGuards(AuthGuard)
   create(@Body() createRecepieDto: CreateRecepieDto, @GetUser() user: User) {
     createRecepieDto.author = user;
 
@@ -98,13 +94,13 @@ export class RecepieController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthenticationGuard)
+  @UseGuards(AuthGuard)
   update(@Param('id') id: string, @Body() updateRecepieDto: UpdateRecepieDto) {
     return this.recepieService.update(id, updateRecepieDto);
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthenticationGuard)
+  @UseGuards(AuthGuard)
   remove(@Param('id') id: string) {
     return this.recepieService.remove(id);
   }

@@ -8,15 +8,16 @@ import {
   Patch,
   Post,
   Query,
+  Req,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { GetUser } from '~/core/authentication/auth.decorator';
-import JwtAuthenticationGuard from '~/core/authentication/jwt-authentication.guard';
-import { Role } from '~/core/authentication/role.enum';
-import { Roles } from '~/core/authentication/roles.decorator';
-import { RolesGuard } from '~/core/authentication/roles.guard';
-import { ConfirmUserDTO } from './dto/confirm-user.dto';
+import { GetUser } from '~/core/auth/auth.decorator';
+import { AuthGuard } from '~/core/auth/auth.guard';
+import { Role } from '~/core/auth/role.enum';
+import { Roles } from '~/core/auth/roles.decorator';
+import { RolesGuard } from '~/core/auth/roles.guard';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserRoleDTO } from './dto/update-user-role.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -33,36 +34,29 @@ export class UserController {
     return this.userService.createUser(createUserDTO);
   }
 
-  @Get('/confirmed/:token')
-  getUserInfos(@Param('token') token: string) {
-    return this.userService.getUserInfos(token);
-  }
-
-  @Post('/confirm')
-  confirmUser(@Body() confirmUserDTO: ConfirmUserDTO) {
-    return this.userService.confirmUser(confirmUserDTO);
-  }
-
   @Get()
-  @UseGuards(JwtAuthenticationGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   findAll() {
-    return this.userService.findAll().then((usrs) => {
-      return usrs.map((usr) => {
-        const { passwordHash, ...user } = usr;
-        return user;
-      });
-    });
+    return this.userService.findAll();
   }
 
   @Get('/me')
-  @UseGuards(JwtAuthenticationGuard)
-  getMe(@GetUser() user: User) {
-    return user;
+  @UseGuards(AuthGuard)
+  getMe(@Req() req) {
+    const user: any = req.user;
+
+    if (!user || !user.storedUser) {
+      throw new UnauthorizedException();
+    }
+
+    return this.userService.findOne(user.storedUser.id);
+
+    // return user;
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthenticationGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   findOne(@Param('id') id: string) {
     return this.userService.findOneById(id);
@@ -74,7 +68,7 @@ export class UserController {
   // }
 
   // @Patch(':id/tenant')
-  // @UseGuards(JwtAuthenticationGuard, RolesGuard)
+  // @UseGuards(AuthGuard, RolesGuard)
   // @Roles(Role.ADMIN, Role.TENANT_ADMIN)
   // setTenant(@GetUser() user: User, @Body() body: UpdateUserTenantDTO) {
   //   if (user.role == Role.TENANT_ADMIN && user.tenant.id != body.tenantId)
@@ -84,7 +78,7 @@ export class UserController {
   // }
 
   @Patch('role')
-  @UseGuards(JwtAuthenticationGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   setUserRole(@Body() body: UpdateUserRoleDTO) {
     return this.userService.setUserRole(body.userId, body.role);
@@ -103,20 +97,20 @@ export class UserController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthenticationGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(id, updateUserDto);
   }
 
   @Delete('/me')
-  @UseGuards(JwtAuthenticationGuard)
+  @UseGuards(AuthGuard)
   removeMe(@GetUser() user: User) {
     return this.userService.remove(user.id);
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthenticationGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   remove(@Param('id') id: string) {
     return this.userService.remove(id);
@@ -133,20 +127,15 @@ export class UserController {
     return this.userService.resendConfirmationEmail(email);
   }
 
-  @Post('confirm-email')
-  reconfirmEmail(@Body('token') email: string) {
-    return this.userService.confirmUserEmail(email);
-  }
-
   @Get('data/me')
-  @UseGuards(JwtAuthenticationGuard)
+  @UseGuards(AuthGuard)
   async getOwnUserData() {
     // TODO: implement
     throw new NotImplementedException();
   }
 
   @Get('data/:id')
-  @UseGuards(JwtAuthenticationGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   async getSpecificUserData(@Query('id') id: string) {
     // TODO: implement
     throw new NotImplementedException();

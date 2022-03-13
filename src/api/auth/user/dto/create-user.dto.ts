@@ -7,7 +7,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { Role } from '~/core/authentication/role.enum';
+import { Role } from '~/core/auth/role.enum';
 
 export class CreateUserDTO {
   @IsString()

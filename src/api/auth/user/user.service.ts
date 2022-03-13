@@ -8,12 +8,11 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as bcrypt from 'bcryptjs';
+import { auth } from 'firebase-admin';
 import { MailService } from 'src/core/mail/mail.service';
 import { Repository } from 'typeorm';
-import { Role } from '~/core/authentication/role.enum';
+import { Role } from '~/core/auth/role.enum';
 import PostgresErrorCode from '~/core/database/postgresErrorCode.enum';
-import { ConfirmUserDTO } from './dto/confirm-user.dto';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -82,23 +81,20 @@ export class UserService {
     if (await this.userRepository.findOne({ email: createUserDTO.email }))
       throw new HttpException('Email already in use', HttpStatus.CONFLICT);
 
-    const confirmationToken = this.getRandomToken();
-
     const nUser: Partial<User> = {
       ...createUserDTO,
       lastLogin: new Date(),
-      confirmationToken: confirmationToken,
       role: createUserDTO.role,
       id: this.makeid(6),
     };
 
-    const need_confirmation = this.configService.get('user_confirmation');
-    if (!need_confirmation) {
-      nUser.confirmed = need_confirmation;
-      nUser.passwordHash = await bcrypt.hash(createUserDTO.password, 14);
-      nUser.confirmed = true;
-      nUser.confirmationToken = null;
-    }
+    const fuser = await auth().createUser({
+      email: nUser.email,
+      emailVerified: false,
+      password: createUserDTO.password,
+      displayName: nUser.displayname,
+      disabled: false,
+    });
 
     const user = await this.userRepository.save(nUser).catch((error) => {
       if (error?.code === PostgresErrorCode.UniqueViolation) {
@@ -110,63 +106,22 @@ export class UserService {
       );
     });
 
-    if (need_confirmation) {
-      await this.mailService.sendUserConfirmation(user).catch(() => {
-        throw new HttpException(
-          'Failed to send confirmation email !',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      });
-    }
+    // if (need_confirmation) {
+    //   await this.mailService.sendUserConfirmation(user).catch(() => {
+    //     throw new HttpException(
+    //       'Failed to send confirmation email !',
+    //       HttpStatus.INTERNAL_SERVER_ERROR,
+    //     );
+    //   });
+    // }
 
     return {
       ...nUser,
-      confirmationToken,
     };
-  }
-
-  async confirmUserEmail(token: string) {
-    const user: User = await this.userRepository.findOne({
-      confirmationToken: token,
-    });
-
-    if (!user) {
-      throw new HttpException(
-        'Invalid verification token',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    user.confirmed = true;
-    user.confirmationToken = null;
-    this.userRepository.update(user.id, user);
-  }
-
-  async confirmUser(confirmUserDTO: ConfirmUserDTO) {
-    const user: User = await this.userRepository.findOne({
-      confirmationToken: confirmUserDTO.token,
-    });
-
-    if (!user) {
-      throw new HttpException(
-        'Invalid verification token',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    user.passwordHash = await bcrypt.hash(confirmUserDTO.password, 14);
-    user.confirmed = true;
-    user.confirmationToken = null;
-
-    this.userRepository.update(user.id, user);
   }
 
   async findAll(): Promise<User[]> {
     const users = await this.userRepository.find();
-    for (const u of users) {
-      u.passwordHash = undefined;
-      u.confirmationToken = undefined;
-      u.currentHashedRefreshToken = undefined;
-    }
 
     return users;
   }
@@ -179,12 +134,7 @@ export class UserService {
       throw new NotFoundException('ERROR.USER_NOT_FOUND');
     }
 
-    return {
-      ...user,
-      // passwordHash: undefined,TODO: Breaking change: used in jwt guard. To fix !
-      confirmationToken: undefined,
-      currentHashedRefreshToken: undefined,
-    };
+    return user;
   }
 
   async findOneById(id: string): Promise<User> {
@@ -195,12 +145,7 @@ export class UserService {
       throw new NotFoundException('ERROR.USER_NOT_FOUND');
     }
 
-    return {
-      ...user,
-      passwordHash: undefined,
-      confirmationToken: undefined,
-      currentHashedRefreshToken: undefined,
-    };
+    return user;
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
@@ -278,37 +223,5 @@ export class UserService {
     return this.userRepository.update(id, {
       disable: false,
     });
-  }
-
-  async setCurrentRefreshToken(refreshToken: string, userId: string) {
-    const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-    await this.userRepository.update(userId, {
-      currentHashedRefreshToken,
-    });
-  }
-
-  async getUserIfRefreshTokenMatches(refreshToken: string, userId: string) {
-    const user = await this.findOneById(userId);
-
-    const isRefreshTokenMatching = await bcrypt.compare(
-      refreshToken,
-      user.currentHashedRefreshToken,
-    );
-
-    if (isRefreshTokenMatching) {
-      return user;
-    }
-  }
-
-  async removeRefreshToken(userId: string) {
-    return this.userRepository.update(userId, {
-      currentHashedRefreshToken: null,
-    });
-  }
-
-  async test() {
-    const resp = await this.findAll();
-    console.log(resp[0]);
-    this.mailService.sendUserConfirmation(resp[0]);
   }
 }

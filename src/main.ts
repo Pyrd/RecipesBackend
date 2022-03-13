@@ -12,45 +12,25 @@ import * as fs from 'fs';
 import * as http from 'http';
 import * as https from 'https';
 import { AppModule } from './app.module';
+import admin from 'firebase-admin';
+
 async function bootstrap() {
-  // const app = await NestFactory.create(AppModule);
-
-  // app.enableCors();
-  // app.setGlobalPrefix('api');
-  // const configService: ConfigService = app.get(ConfigService);
-
-  // app.useGlobalFilters(new HttpExceptionFilter());
-
-  // if (configService.get('swagger')) {
-  //   Logger.log('SWAGGER: OK');
-  //   const config = new DocumentBuilder().build();
-
-  //   const document = SwaggerModule.createDocument(app, config);
-  //   SwaggerModule.setup('api/api', app, document);
-  // } else {
-  //   Logger.log('SWAGGER: KO');
-  // }
-
-  // const PORT = configService.get('port');
-  // await app.listen(PORT, () => {
-  //   Logger.log(`App is running on port ${PORT}`);
-  // });
-
   const server = express();
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
 
   const configService: ConfigService = app.get(ConfigService);
   // logger.setContext('Server')
   const PORT = configService.get('port');
+  const firebaseConfig = configService.get('firebase_admin');
+  console.log('ok', firebaseConfig);
+  await admin.initializeApp({
+    credential: admin.credential.cert(firebaseConfig.cert),
+    storageBucket: firebaseConfig.storage_bucket,
+  });
 
   app.setGlobalPrefix('api');
-
   app.useGlobalPipes(new ValidationPipe());
   app.enableCors();
-
-  // if (configService.get('auth')) {
-  //     app.useGlobalGuards(new JwtAuthenticationGuard());
-  // }
 
   if (configService.get('swagger')) {
     const config = new DocumentBuilder()

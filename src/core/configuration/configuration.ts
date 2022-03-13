@@ -3,16 +3,7 @@ export default () => ({
   auth: process.env.ENABLE_AUTH === 'true',
   roles: process.env.ENABLE_ROLE == 'true' || false,
   user_confirmation: process.env.ENABLE_USER_CONFIRMATION == 'true' || false,
-  jwt: {
-    jwt_access_token_secret:
-      process.env.JWT_ACCESS_TOKEN_SECRET || 'mysecretpassword',
-    jwt_access_token_expiration_time:
-      process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME || 60 * 15,
-    jwt_refresh_token_secret:
-      process.env.JWT_REFRESH_TOKEN_SECRET || 'mysecretpassword',
-    jwt_refresh_token_expiration_time:
-      process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME || 60 * 15,
-  },
+
   https: {
     enable: process.env.HTTPS == 'enable',
     certPath: process.env.KEY_PATH || '',
@@ -25,6 +16,12 @@ export default () => ({
     password: process.env.DATABASE_PASSWORD || 'mysecretpassword',
     database: process.env.DATABASE_DATABASE || 'postgres',
     ssl: process.env.DATABASE_SSL == 'true' || false,
+  },
+  firebase_admin: {
+    cert: process.env.GOOGLE_SERVICE_ACCOUNT
+      ? JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT)
+      : null,
+    storage_bucket: process.env.FIREBASE_STORAGE_BUCKET || '',
   },
   mail: {
     host: process.env.MAIL_HOST,

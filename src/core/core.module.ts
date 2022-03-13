@@ -1,13 +1,14 @@
 import { ClassSerializerInterceptor, Logger, Module } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
-import { AuthenticationModule } from './authentication/authentication.module';
+import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './database/database.module';
 import { HttpExceptionsFilter } from './error-handler/http-exception.filter';
+import { FirebaseStorageModule } from './firebase-storage/firebase-storage.module';
 import { MailModule } from './mail/mail.module';
 
 @Module({
-  imports: [DatabaseModule, AuthenticationModule, MailModule],
-  exports: [AuthenticationModule],
+  imports: [DatabaseModule, AuthModule, FirebaseStorageModule, MailModule],
+  exports: [AuthModule],
   providers: [
     {
       provide: APP_FILTER,
