@@ -26,24 +26,12 @@ export class User {
   displayname: string;
 
   @ApiProperty()
-  @Column()
-  firstname: string;
-
-  @ApiProperty()
-  @Column()
-  lastname: string;
-
-  @ApiProperty()
   @Column({ unique: true })
   email: string;
 
   @ApiProperty()
   @Column()
   gender: string;
-
-  @ApiProperty()
-  @Column({ nullable: true })
-  birth_date: string;
 
   @ApiProperty()
   @Column({

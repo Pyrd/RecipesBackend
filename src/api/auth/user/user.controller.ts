@@ -34,6 +34,11 @@ export class UserController {
     return this.userService.createUser(createUserDTO);
   }
 
+  @Post('signup')
+  userSignUp(@Body() createUserDTO: CreateUserDTO) {
+    return this.userService.userSignUp(createUserDTO);
+  }
+
   @Get()
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.ADMIN)

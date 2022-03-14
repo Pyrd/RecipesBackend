@@ -10,12 +10,6 @@ import {
 import { Role } from '~/core/auth/role.enum';
 
 export class CreateUserDTO {
-  @IsString()
-  firstname: string;
-
-  @IsString()
-  lastname: string;
-
   @IsEmail()
   email: string;
 
@@ -23,7 +17,7 @@ export class CreateUserDTO {
   gender: string;
 
   @IsString()
-  birth_date: string;
+  displayname: string;
 
   @IsOptional()
   @IsString()
@@ -34,5 +28,6 @@ export class CreateUserDTO {
   tenantId: number;
 
   @IsEnum(Role)
+  @IsOptional()
   role: Role;
 }

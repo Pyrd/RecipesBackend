@@ -77,17 +77,11 @@ export class UserService {
     );
   }
 
-  async createUser(createUserDTO: CreateUserDTO) {
+  async create(createUserDTO: CreateUserDTO, nUser: Partial<User>) {
     if (await this.userRepository.findOne({ email: createUserDTO.email }))
       throw new HttpException('Email already in use', HttpStatus.CONFLICT);
-
-    const nUser: Partial<User> = {
-      ...createUserDTO,
-      lastLogin: new Date(),
-      role: createUserDTO.role,
-      id: this.makeid(6),
-    };
-
+    nUser.lastLogin = new Date();
+    nUser.id = this.makeid(6);
     const fuser = await auth().createUser({
       email: nUser.email,
       emailVerified: true,
@@ -98,7 +92,7 @@ export class UserService {
 
     nUser.firebaseUid = fuser.uid;
 
-    const user = await this.userRepository.save(nUser).catch((error) => {
+    await this.userRepository.save(nUser).catch((error) => {
       if (error?.code === PostgresErrorCode.UniqueViolation) {
         throw new BadRequestException('User with that email already exists');
       }
@@ -109,18 +103,31 @@ export class UserService {
       );
     });
 
-    // if (need_confirmation) {
-    //   await this.mailService.sendUserConfirmation(user).catch(() => {
-    //     throw new HttpException(
-    //       'Failed to send confirmation email !',
-    //       HttpStatus.INTERNAL_SERVER_ERROR,
-    //     );
-    //   });
-    // }
-
     return {
       ...nUser,
     };
+  }
+
+  async userSignUp(createUserDTO: CreateUserDTO) {
+    if (await this.userRepository.findOne({ email: createUserDTO.email }))
+      throw new HttpException('Email already in use', HttpStatus.CONFLICT);
+
+    const nUser: Partial<User> = {
+      ...createUserDTO,
+      role: Role.USER,
+    };
+    return this.create(createUserDTO, nUser);
+  }
+
+  async createUser(createUserDTO: CreateUserDTO) {
+    if (await this.userRepository.findOne({ email: createUserDTO.email }))
+      throw new HttpException('Email already in use', HttpStatus.CONFLICT);
+
+    const nUser: Partial<User> = {
+      ...createUserDTO,
+      role: createUserDTO.role,
+    };
+    return this.create(createUserDTO, nUser);
   }
 
   async findAll(): Promise<User[]> {
