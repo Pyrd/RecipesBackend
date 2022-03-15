@@ -50,7 +50,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   getMe(@Req() req) {
     const user: any = req.user;
-
+    console.log(user, user.storedUser);
     if (!user || !user.storedUser) {
       throw new UnauthorizedException();
     }

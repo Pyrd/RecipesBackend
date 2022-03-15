@@ -136,9 +136,9 @@ export class UserService {
     return users;
   }
 
-  async findOne(email: string): Promise<User> {
+  async findOne(id: string): Promise<User> {
     const user = await this.userRepository.findOne({
-      email: email,
+      id: id,
     });
     if (user == undefined) {
       throw new NotFoundException('ERROR.USER_NOT_FOUND');
