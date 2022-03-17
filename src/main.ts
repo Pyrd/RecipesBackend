@@ -22,7 +22,6 @@ async function bootstrap() {
   // logger.setContext('Server')
   const PORT = configService.get('port');
   const firebaseConfig = configService.get('firebase_admin');
-  console.log('ok', firebaseConfig);
   await admin.initializeApp({
     credential: admin.credential.cert(firebaseConfig.cert),
     storageBucket: firebaseConfig.storage_bucket,

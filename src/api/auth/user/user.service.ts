@@ -26,62 +26,10 @@ export class UserService {
     private readonly configService: ConfigService,
   ) {}
 
-  // async create(createUserDto: CreateUserDto) {
-  //     let { password, ...user } = createUserDto;
-
-  //     let hashed = await bcrypt.hash(password, 14);
-
-  //     let tenant: Tenant = await this.tenantService.findOne(createUserDto.tenantId)
-
-  //     if (!tenant) {
-  //         throw new HttpException("Tenant not found", HttpStatus.NOT_FOUND)
-  //     }
-
-  //     let nUser: Partial<User> = {
-  //         ...user,
-  //         passwordHash: hashed,
-  //         tenant: tenant,
-  //         lastLogin: new Date()
-  //     };
-
-  //     return this.userRepository.save(nUser);
-  // }
-
-  getUserInfos(token: string) {
-    return this.userRepository
-      .findOne({
-        confirmationToken: token,
-      })
-      .then((retrieved) => {
-        if (!retrieved)
-          throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
-
-        return retrieved;
-      });
-  }
-
-  makeid(length) {
-    let result = '';
-    const characters =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result.toUpperCase();
-  }
-
-  private getRandomToken() {
-    return (
-      Math.floor(Math.random() * (99999 - 10000) + 10000) + '-' + Date.now()
-    );
-  }
-
   async create(createUserDTO: CreateUserDTO, nUser: Partial<User>) {
     if (await this.userRepository.findOne({ email: createUserDTO.email }))
       throw new HttpException('Email already in use', HttpStatus.CONFLICT);
     nUser.lastLogin = new Date();
-    nUser.id = this.makeid(6);
     const fuser = await auth().createUser({
       email: nUser.email,
       emailVerified: true,
@@ -90,6 +38,7 @@ export class UserService {
       disabled: false,
     });
 
+    nUser.id = fuser.uid;
     nUser.firebaseUid = fuser.uid;
 
     await this.userRepository.save(nUser).catch((error) => {
@@ -164,15 +113,32 @@ export class UserService {
       updateUserDto.confirmed = false;
     }
 
-    const nUser: User = {
-      ...this.userRepository.create({ ...user, ...updateUserDto }),
-    };
+    // Firebase payload
+    const pkg = {};
+    if (updateUserDto.email) {
+      pkg['email'] = updateUserDto.email;
+      pkg['emailVerified'] = false;
+    }
+    if (updateUserDto.displayname) {
+      pkg['displayname'] = updateUserDto.displayname;
+    }
+
+    // Firebase update
+    await auth().updateUser(id, {
+      ...pkg,
+    });
+
+    // DB update
+    const nUser: User = this.userRepository.create({
+      ...user,
+      ...updateUserDto,
+    });
     await this.userRepository.save(nUser);
     if (updateUserDto.email) {
       await this.sendConfirmationEmail(user);
     }
 
-    return;
+    return nUser;
   }
 
   remove(id: string) {
@@ -233,5 +199,24 @@ export class UserService {
     return this.userRepository.update(id, {
       disable: false,
     });
+  }
+
+  getUserInfos(token: string) {
+    return this.userRepository
+      .findOne({
+        confirmationToken: token,
+      })
+      .then((retrieved) => {
+        if (!retrieved)
+          throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
+
+        return retrieved;
+      });
+  }
+
+  private getRandomToken() {
+    return (
+      Math.floor(Math.random() * (99999 - 10000) + 10000) + '-' + Date.now()
+    );
   }
 }

@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  InternalServerErrorException,
+  Logger,
   NotFoundException,
   Param,
   Patch,
@@ -13,21 +15,22 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { AuthGuard } from '~/core/auth/auth.guard';
-
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Readable } from 'typeorm/platform/PlatformTools';
 import { User } from '~/api/auth/user/entities/user.entity';
 import { GetUser } from '~/core/auth/auth.decorator';
+import { AuthGuard } from '~/core/auth/auth.guard';
 import { CreateRecepieDto } from './dto/create-recepie.dto';
 import { UpdateRecepieDto } from './dto/update-recepie.dto';
 import { RecepieService } from './recepie.service';
 
 @Controller('recepie')
 export class RecepieController {
+  logger = new Logger(RecepieController.name);
   constructor(private readonly recepieService: RecepieService) {}
 
   @Post()
+  @UseGuards(AuthGuard)
   @UseGuards(AuthGuard)
   create(@Body() createRecepieDto: CreateRecepieDto, @GetUser() user: User) {
     createRecepieDto.author = user;
@@ -35,6 +38,7 @@ export class RecepieController {
     return this.recepieService.create(createRecepieDto);
   }
   @Get()
+  @UseGuards(AuthGuard)
   findAll(
     @Query('skip') skip: number,
     @Query('take') take: number,
@@ -48,13 +52,28 @@ export class RecepieController {
   }
 
   @Post('import')
+  @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('file'))
-  initIngredients(@UploadedFile() file: Express.Multer.File) {
+  async initIngredients(
+    @GetUser() user,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
     // console.log(file);
-    return this.recepieService.importRecepiesFromJSON(file);
+
+    const resp = await this.recepieService
+      .importRecepiesFromJSON(file, user.storedUser)
+      .catch((err) => {
+        this.logger.error(err);
+        throw new InternalServerErrorException({
+          message: 'ERROR',
+          error: err.message,
+        });
+      });
+    return { message: 'SUCCESS', ...resp };
   }
 
   @Get('export')
+  @UseGuards(AuthGuard)
   async exportAll(@Res() res) {
     const resp = await this.recepieService.exportAll();
     const time = new Date().getTime();
@@ -70,11 +89,13 @@ export class RecepieController {
   }
 
   @Get('explore')
+  @UseGuards(AuthGuard)
   async getExploreRecepie() {
     return this.recepieService.generateExploreRecepie();
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard)
   async findOne(@Param('id') id: string, @Query('addItems') val = false) {
     if (val) {
       const recepie = await this.recepieService.findOne(id);
@@ -89,6 +110,7 @@ export class RecepieController {
   }
 
   @Get(':id/items')
+  @UseGuards(AuthGuard)
   findItemsOfOne(@Param('id') id: string) {
     return this.recepieService.findItemsOfOne(id);
   }

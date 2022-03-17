@@ -30,11 +30,9 @@ export class AuthMiddleware implements NestMiddleware {
         next();
       } else {
         jwt = splited[1];
-        console.log('JWT', jwt);
         this.authService
           .verifyJwt(jwt)
           .then(async (r) => {
-            console.log(r.uid);
             let storedUser = await this.authService.getUserFromJwt(r.uid);
 
             if (!storedUser)

@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
+import { User } from '~/api/auth/user/entities/user.entity';
 import { id_generator } from '~/utils/generate-id';
 import { ItemsService } from '../items/items.service';
 import { Paginate, PaginateQuery } from '../shared/paginate.interface';
@@ -40,17 +41,17 @@ export class RecepieService {
     return recepie;
   }
 
-  async importRecepiesFromJSON(file: Express.Multer.File) {
-    console.log(file);
+  async importRecepiesFromJSON(file: Express.Multer.File, user: User) {
     if (file.mimetype != 'application/json') {
       throw new BadRequestException('Bad file format');
     }
-    const json = JSON.parse(file.buffer.toString());
+    const json: Recepie[] = JSON.parse(file.buffer.toString());
     const promises = [];
+    console.log('YSER', user);
     for (const elem of json) {
+      elem.author = user;
       const recepie = this.recepieRepository.create(elem);
       console.log('>>>', JSON.stringify(recepie, null, 2));
-
       promises.push(await this.recepieRepository.save(recepie));
     }
     // const resp = await Promise.all(promises);

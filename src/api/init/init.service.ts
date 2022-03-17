@@ -35,7 +35,7 @@ export class InitService {
     this.logger.log(`Importing ${dtos.length} ingredients`);
 
     await this.itemService.batchCreate(dtos);
-    return json;
+    return { count: dtos.length };
   }
 
   // async initIngredients(file: Express.Multer.File) {

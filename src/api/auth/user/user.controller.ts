@@ -48,14 +48,29 @@ export class UserController {
 
   @Get('/me')
   @UseGuards(AuthGuard)
-  getMe(@Req() req) {
-    const user: any = req.user;
-    console.log(user, user.storedUser);
+  getMe(@GetUser() user) {
     if (!user || !user.storedUser) {
       throw new UnauthorizedException();
     }
 
     return this.userService.findOne(user.storedUser.id);
+  }
+
+  @Patch('/me')
+  @UseGuards(AuthGuard)
+  updateMe(@GetUser() user, @Body() userDto: UpdateUserDto) {
+    if (!user || !user.storedUser) {
+      throw new UnauthorizedException();
+    }
+    const dto = Object.assign(
+      {},
+      {
+        email: userDto.email,
+        displayname: userDto.displayname,
+        gender: userDto.gender,
+      },
+    );
+    return this.userService.update(user.storedUser.id, dto);
 
     // return user;
   }
